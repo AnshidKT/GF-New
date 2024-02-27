@@ -44,7 +44,8 @@ const Address = () => {
 
     try {
       const response = await fetch(
-        `${baseUrl}/api/carts/02010c86-bccd-41df-acfe-d800277feb72/address`,
+        `${baseUrl}/api/carts/02010c86-bccd-41df-acfe-d800277feb72/addresses`,
+
         {
           method: 'POST',
           headers: {
@@ -102,7 +103,7 @@ const Address = () => {
             paddingLeft: 20,
             paddingRight: 20,
           }}>
-          <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Index')}>
             <View
               style={{
                 width: 40,
@@ -132,8 +133,14 @@ const Address = () => {
         <View style={{padding: 10}}>
           <View>
             <SelectDropdown
-              data={['US', 'India']}
-              onSelect={(selectedItem, index) => setCountry(selectedItem)}
+              data={[
+                {value: 'US', label: 'United States'},
+                {value: 'IN', label: 'India'},
+              ]}
+              onSelect={(selectedItem, index) => {
+                setCountry(selectedItem.value);
+                console.log('country:', selectedItem.value);
+              }}
               defaultButtonText="Select Your Country"
               defaultButtonTextStyle={{fontSize: 15}}
               buttonTextAfterSelection={(selectedItem, index) => (
@@ -144,10 +151,10 @@ const Address = () => {
                     fontSize: 15,
                     width: '100%',
                   }}>
-                  {selectedItem}
+                  {selectedItem.label}
                 </Text>
               )}
-              rowTextForSelection={(item, index) => item}
+              rowTextForSelection={(item, index) => item.label}
               dropdownIconPosition="right"
               dropdownStyle={{borderRadius: 5}}
               rowTextStyle={{paddingVertical: 12}}
@@ -197,6 +204,7 @@ const Address = () => {
               }}
             />
           </View>
+
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
               Mobile number
@@ -215,6 +223,7 @@ const Address = () => {
               }}
             />
           </View>
+
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>Your Address</Text>
             <TextInput
@@ -229,6 +238,7 @@ const Address = () => {
               }}
             />
           </View>
+
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
               Area,Street,City
@@ -245,6 +255,7 @@ const Address = () => {
               }}
             />
           </View>
+
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>Landmark</Text>
             <TextInput
@@ -261,6 +272,7 @@ const Address = () => {
               }}
             />
           </View>
+
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>Pincode</Text>
             <TextInput
@@ -277,6 +289,7 @@ const Address = () => {
               }}
             />
           </View>
+
           <TouchableOpacity
             onPress={addAddress}
             style={{
