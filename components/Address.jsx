@@ -45,7 +45,6 @@ const Address = () => {
     try {
       const response = await fetch(
         `${baseUrl}/api/carts/02010c86-bccd-41df-acfe-d800277feb72/address`,
-
         {
           method: 'POST',
           headers: {
