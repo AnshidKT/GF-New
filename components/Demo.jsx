@@ -1,422 +1,468 @@
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useRoute} from '@react-navigation/native';
-
-import FlashMessage, {
-  showMessage,
-  hideMessage,
-} from 'react-native-flash-message';
+import {StyleSheet, Text, Image, TouchableOpacity, View} from 'react-native';
+import {ScrollView} from 'react-native';
+import {TextInput} from 'react-native';
+import FlashMessage, {showMessage} from 'react-native-flash-message';
+import Footer from './Footer';
+import axios from 'axios';
 import {useBaseUrl} from './BaseUrlContext';
-
+import {BarIndicator} from 'react-native-indicators';
 const Demo = ({navigation}) => {
+  const [cartData, setCartData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const {baseUrl} = useBaseUrl();
-  const [sku, setSku] = useState(null);
 
-  const route = useRoute();
-  const {product} = route.params;
+  const cartUserId = '9a46a92e-a1fa-44e5-b860-8d6a95c7a24f';
 
   useEffect(() => {
-    if (product) {
-      setSku(product.sku);
-    }
-  }, [product]);
-
-  const showAddedToCart = () => {
-    showMessage({
-      message: 'Added To Cart',
-      type: 'success',
-    });
-  };
-
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-
-  const handleIncrement = () => {
-    setQuantity(quantity + 1);
-  };
-
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
-
-  const handleSizeSelection = size => {
-    setSelectedSize(size);
-    setSku(product.sku);
-    console.log('====================================');
-    console.log(product.sku);
-    console.log('====================================');
-  };
-
-  const handleToAdmin = async () => {
-    if (!selectedSize) {
-      showMessage({
-        message: 'Please select a size',
-        type: 'warning',
-      });
-      return;
-    }
-
-    // Adjusted the payload to use the updated SKU
-    const userItem = {
-      sku: sku,
-      qty: quantity,
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/cart/getcarts?uuid=${cartUserId}`,
+        );
+        // console.log('Response Data:', response.data);
+        const cart_items = response.data.items;
+        //  console.log('Cart Items:', cart_items);
+        setCartData(cart_items);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching cart data:', error);
+        setLoading(false);
+      }
     };
+    fetchData();
+  }, []);
+
+  const calculateTotalPrice = () => {
+    if (!cartData || cartData.length === 0) {
+      return 0;
+    }
+
+    return cartData.reduce(
+      (total, item) => total + item.final_price * item.qty,
+      0,
+    );
+  };
+
+  const handleRemoveItem = async (cartId, cartItemId) => {
+
+console.log(cartId);
+console.log(cartItemId);
 
     try {
-      const response = await fetch(
-        `${baseUrl}/api/cart/02010c86-bccd-41df-acfe-d800277feb72/items`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(userItem),
-        },
+      await axios.delete(`${baseUrl}/api/cart/${cartId}/items/${cartItemId}`);
+      const updatedCartData = cartData.filter(
+        item => item.cart_item_id !== cartItemId,
       );
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Item added successfully to cart:', data);
-        showAddedToCart();
-      } else {
-        console.error(
-          'Failed to add item to cart:',
-          response.status,
-          response.statusText,
-        );
-      }
+      setCartData(updatedCartData);
+      showMessage({
+        message: 'Item removed from cart',
+        type: 'success',
+      });
     } catch (error) {
-      console.error('Error occurred while adding item to cart:', error);
+      console.error('Error removing item from cart:', error);
+      console.log('Failed to remove item from cart');
     }
   };
 
-  const renderSizeButton = sizeOption => (
-    <TouchableOpacity
-      key={sizeOption.optionId}
-      style={{
-        width: 40,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor:
-          selectedSize === sizeOption.optionText ? '#64D2FF99' : 'white',
-        marginRight: 10,
-        borderWidth: 0.2,
-        borderColor: '#a6a6a6',
-      }}
-      onPress={() => handleSizeSelection(sizeOption.optionText)}>
-      <Text style={{color: 'black', fontSize: 18}}>
-        {sizeOption.optionText}
-      </Text>
-    </TouchableOpacity>
-  );
   return (
-    <View>
-      <FlashMessage position="top" />
-      <View
-        style={{
-          width: '100%',
-          height: 60,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: 'row',
-          paddingLeft: 20,
-          paddingRight: 20,
-        }}>
-        <TouchableOpacity onPress={() => navigation.navigate('Demoo')}>
-          <View
-            style={{
-              width: 40,
-              borderRadius: 6,
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 40,
-              backgroundColor: '#ffffff',
-            }}>
-            <Image
-              style={{width: 20, height: 20}}
-              source={require('../Assets/Normal-IMG/left-arrow.png')}
-            />
-          </View>
-        </TouchableOpacity>
-        <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
-          Demo
-        </Text>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
-          <View
-            style={{
-              width: 40,
-              backgroundColor: 'white',
-              height: 40,
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 5,
-            }}>
-            <Image
-              style={{tintColor: '#FF375F', width: 25, height: 25}}
-              source={require('../Assets/Normal-IMG/cart.png')}
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView>
-        <View
-          style={{
-            width: '100%',
-            height: 240,
-            paddingTop: 20,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <View
-            style={{
-              width: '90%',
-
-              height: '100%',
-              //   backgroundColor: 'white',
-              borderRadius: 10,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Image
-              style={{width: '80%', height: '80%'}}
-              source={{
-                uri: `${baseUrl}${product.listingImage}`,
-              }}
-            />
-          </View>
+    <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>
+      {loading ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <BarIndicator color="#007AFF" />
         </View>
-        <View
-          style={{
-            width: '100%',
-            height: 'auto',
-            alignItems: 'center',
-            justifyContent: 'center',
-            // backgroundColor: 'white',
-            borderRadius: 10,
-          }}>
+      ) : (
+        <>
+          <FlashMessage position="top" />
           <View
-            style={{
-              width: '90%',
-
-              height: 'auto',
-              //   backgroundColor: 'white',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                width: '100%',
-                height: 60,
-                // backgroundColor: 'yellow',
-                justifyContent: 'center',
-              }}>
-              <Text
-                style={{
-                  fontSize: 30,
-                  fontStyle: 'italic',
-                  fontWeight: 'bold',
-                  color: '#007AFF',
-                }}>
-                {product.name}
-              </Text>
-            </View>
-
-            {product.filterableAttributes &&
-              product.filterableAttributes.length > 0 && (
-                <View
-                  style={{
-                    width: '100%',
-                    height: 60,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}>
-                  <Text style={{fontSize: 18, color: 'black'}}>Size</Text>
-                  <View
-                    style={{
-                      width: '80%',
-                      height: '90%',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'flex-start',
-                    }}>
-                    {product.filterableAttributes
-                      .find(attr => attr.attributeCode === 'size')
-                      ?.options.map(sizeOption => renderSizeButton(sizeOption))}
-                  </View>
-                </View>
-              )}
-
-            <View
-              style={{
-                width: '100%',
-                height: 60,
-                flexDirection: 'row',
-
-                // backgroundColor: 'red',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-              }}>
-              <Text style={{fontSize: 18, color: 'black'}}>QTY</Text>
-
-              <View
-                style={{
-                  width: '62%',
-                  height: '100%',
-                  //   backgroundColor: 'yellow',
-                  flexDirection: 'row',
-
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  onPress={handleDecrement}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 0.2,
-                    borderColor: '#a6a6a6',
-                    backgroundColor: 'white',
-                  }}>
-                  <Text style={{color: 'black', fontSize: 30}}>-</Text>
-                </TouchableOpacity>
-
-                <View
-                  style={{
-                    width: 40,
-                    height: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 0.2,
-                    borderColor: '#a6a6a6',
-                    backgroundColor: 'white',
-                    margin: 8,
-                  }}>
-                  <Text style={{color: 'black', fontSize: 18}}>{quantity}</Text>
-                </View>
-
-                <TouchableOpacity
-                  onPress={handleIncrement}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 0.2,
-                    borderColor: '#a6a6a6',
-                    backgroundColor: 'white',
-                  }}>
-                  <Text style={{color: 'black', fontSize: 18}}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View
-              style={{
-                width: '100%',
-                height: 'auto',
-                // backgroundColor: 'red',
-                justifyContent: 'flex-start',
-              }}>
-              <Text style={{fontSize: 15, color: '#000000', letterSpacing: 1}}>
-                {product.description.replace(/<\/?[^>]+(>|$)/g, '')}
-              </Text>
-            </View>
-
-            <View
-              style={{
-                width: '100%',
-                height: 100,
-                // backgroundColor: 'yellow',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
-              <Text style={{fontSize: 28, color: '#007AfF', fontWeight: '600'}}>
-                QR: {parseFloat(product.price).toFixed(2)}
-              </Text>
-
-              <TouchableOpacity onPress={() => handleToAdmin(product)}>
-                <View
-                  style={{
-                    width: 160,
-                    height: 50,
-                    backgroundColor: '#007AFF',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-evenly',
-                    borderRadius: 3,
-                  }}>
-                  <Image
-                    style={{tintColor: 'white', width: 25, height: 25}}
-                    source={require('../Assets/Normal-IMG/cart.png')}
-                  />
-                  <Text
-                    style={{fontSize: 18, color: 'white', fontWeight: '600'}}>
-                    Add To Cart
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            {/* <View
             style={{
               width: '100%',
               height: 60,
               alignItems: 'center',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              paddingLeft: 20,
+              paddingRight: 20,
             }}>
-            <TouchableOpacity
-             
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <View
+                style={{
+                  width: 40,
+                  borderRadius: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 40,
+                  backgroundColor: '#ffffff',
+                }}>
+                <Image
+                  style={{width: 20, height: 20}}
+                  source={require('../Assets/Normal-IMG/left-arrow.png')}
+                />
+              </View>
+            </TouchableOpacity>
+            <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
+              Demo Cart
+            </Text>
+            <View style={{width: 40}}></View>
+          </View>
+          <ScrollView style={{paddingTop: 10}}>
+            {cartData && cartData.length > 0 ? (
+              <>
+                {cartData.map(item => (
+                  <View
+                    key={item.cart_item_id}
+                    style={{
+                      flexDirection: 'row',
+                      width: '90%',
+                      borderTopEndRadius: 10,
+                      borderTopLeftRadius: 10,
+                      height: 80,
+                      backgroundColor: 'white',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderBottomWidth: 0.3,
+                      borderBottomColor: 'gray',
+                      marginTop: 10,
+                      marginLeft: '5%',
+                    }}>
+                    <View
+                      style={{
+                        width: '20%',
+                        height: '90%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <Image
+                        source={{uri: baseUrl + item.thumbnail}}
+                        style={{width: '90%', height: '90%', borderRadius: 10}}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        width: 'auto',
+                        height: '80%',
+                        flexDirection: 'column',
+                        justifyContent: 'space-evenly',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          marginLeft: 9,
+                          fontWeight: '500',
+                          color: 'black',
+                        }}>
+                        {item.product_name}
+                      </Text>
+                      <Text
+                        style={{marginLeft: 9, fontSize: 11, color: 'black'}}>
+                        Size: {JSON.parse(item.variant_options)[1].option_text}
+                      </Text>
+                      <Text style={{fontSize: 12, marginLeft: 10}}>
+                        Qty : {item.qty}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        width: '24%',
+                        height: '80%',
+                        marginLeft: -20,
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
+                      }}>
+                      <Text style={{color: '#00b33c', fontWeight: 'bold'}}>
+                        QR {item.final_price * item.qty}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        borderLeftColor: '#bfbfbf',
+                        borderLeftWidth: 0.2,
+                        width: '20%',
+                        height: '80%',
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
+                      }}>
+                      <TouchableOpacity
+                         onPress={() => handleRemoveItem(item.cart_id, item.cart_item_id)}>
+                        <Image
+                          style={{tintColor: '#ff3333'}}
+                          source={require('../Assets/Normal-IMG/delete.png')}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
 
-              style={{
-                width: '100%',
-                height: 50,
-              }}>
+                <View
+                  style={{
+                    alignItems: 'center',
+                    width: '100%',
+                    height: 150,
+                    // backgroundColor: 'red',
+                    justifyContent: 'center',
+                    flexDirection: 'column',
+                  }}>
+                  <View
+                    style={{
+                      width: '90%',
+                      height: '80%',
+                      backgroundColor: 'white',
+                      alignContent: 'flex-start',
+                      flexDirection: 'column',
+                      justifyContent: 'space-around',
+                      borderRadius: 8,
+                    }}>
+                    <Text style={{marginLeft: '5%'}}>Apply coupons</Text>
+
+                    <View
+                      style={{
+                        borderTopWidth: 0.3,
+                        borderTopColor: '#e3e3e3',
+                        alignItems: 'center',
+                        width: '100%',
+                        height: '50%',
+                        // backgroundColor: 'yellow',
+                        justifyContent: 'space-evenly',
+                        flexDirection: 'row',
+                      }}>
+                      <TextInput
+                        // onChangeText={text => setCouponCode(text)}
+                        // value={couponCode}
+                        placeholder="Apply your coupons here..."
+                        style={{
+                          borderWidth: 0.2,
+                          borderRadius: 1,
+                          paddingLeft: 8,
+                          width: '70%',
+                          height: '75%',
+                          backgroundColor: 'white',
+                          borderColor: '#ababab',
+                        }}
+                      />
+                      <TouchableOpacity
+                        // onPress={handleApplyCoupon}
+                        style={{
+                          width: 70,
+                          height: '65%',
+                          backgroundColor: '#007AFF',
+                        }}>
+                        <View
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                          <Text style={{color: 'white', textAlign: 'center'}}>
+                            Apply
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    alignItems: 'center',
+                    width: '100%',
+                    height: 280,
+                    // backgroundColor: 'red',
+                    justifyContent: 'flex-start',
+                    flexDirection: 'column',
+                  }}>
+                  <View
+                    style={{
+                      width: '90%',
+                      height: '100%',
+                      backgroundColor: 'white',
+                      // justifyContent:'space-around',
+                      flexDirection: 'column',
+
+                      borderRadius: 8,
+                    }}>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        // backgroundColor: 'yellow',
+                        justifyContent: 'center',
+                        borderBottomWidth: 0.3,
+                        borderBlockColor: '#e3e3e3',
+                      }}>
+                      <Text style={{marginLeft: '5%'}}>Checkout</Text>
+                    </View>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        //  backgroundColor: 'green',
+                        justifyContent: 'space-between',
+                        borderBottomWidth: 0.3,
+                        borderBlockColor: '#e3e3e3',
+                        paddingRight: 13,
+                        paddingLeft: 13,
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                      }}>
+                      <Text style={{fontSize: 15, color: 'black'}}>
+                        Your cart subtotal :
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: 'green',
+                          fontWeight: '400',
+                        }}>
+                        {' '}
+                        {calculateTotalPrice()}
+                        {/* {calculateTotalAmount()} */}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        //  backgroundColor: 'green',
+                        justifyContent: 'space-between',
+                        borderBottomWidth: 0.3,
+                        borderBlockColor: '#e3e3e3',
+                        paddingRight: 13,
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        paddingLeft: 13,
+                      }}>
+                      <Text style={{fontSize: 15, color: 'black'}}>
+                        Discount coupons :{' '}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: 'green',
+                          fontWeight: '400',
+                        }}>
+                        {/* {calculateCouponDiscount()} */}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        //  backgroundColor: 'green',
+                        paddingRight: 13,
+                        paddingLeft: 13,
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        borderBottomWidth: 0.3,
+                        borderBlockColor: '#e3e3e3',
+                      }}>
+                      <Text style={{fontSize: 15, color: 'black'}}>
+                        Shipping Charge :
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: 'green',
+                          fontWeight: '400',
+                        }}>
+                        Free
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        //  backgroundColor: 'green',
+                        marginTop: 10,
+                        justifyContent: 'space-between',
+                        borderBottomWidth: 0.3,
+                        borderBlockColor: '#e3e3e3',
+                        paddingRight: 13,
+                        paddingLeft: 16,
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: '600',
+                          color: 'black',
+                        }}>
+                        Total :
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          color: 'green',
+                          fontWeight: '600',
+                        }}>
+                        {calculateTotalPrice()}
+                        {/* QR {calculateTotalAmount() - calculateCouponDiscount()} */}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        // backgroundColor: 'red',
+                        marginTop: '3%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate('Address')}>
+                        {/* <TouchableOpacity onPress={onPressOpenRBSheet}> */}
+                        <View
+                          style={{
+                            width: 120,
+                            height: 40,
+                            borderRadius: 4,
+                            backgroundColor: '#007AFF',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                          <Text style={{color: 'white', fontSize: 15}}>
+                            Check Out
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              </>
+            ) : (
               <View
                 style={{
                   width: '100%',
-                  height: 50,
-                  backgroundColor: '#FF375F',
-                  flexDirection: 'row',
+                  height: 700,
+                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderRadius: 3,
                 }}>
+                <Image
+                  style={{marginTop: '-30%', width: 200, height: 200}}
+                  source={require('../Assets/Normal-IMG/empty-cart.png')}
+                />
                 <Text
-                  style={{
-                    fontSize: 20,
-                    letterSpacing: 2,
-                    color: 'white',
-                    fontWeight: '500',
-                  }}>
-                  Buy Now
+                  style={{fontSize: 30, fontStyle: 'italic', color: 'black'}}>
+                  Cart Is Empty
                 </Text>
               </View>
-            </TouchableOpacity>
-          </View> */}
+            )}
 
             <View
               style={{
-                width: '100%',
-                height: 100,
-              }}></View>
-          </View>
-        </View>
-      </ScrollView>
+                height: 160,
+                backgroundColor: 'red',
+                marginTop: '10%',
+              }}>
+              <Footer />
+            </View>
+          </ScrollView>
+        </>
+      )}
     </View>
   );
 };

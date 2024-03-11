@@ -14,13 +14,17 @@ import FlashMessage, {
   hideMessage,
 } from 'react-native-flash-message';
 import {useBaseUrl} from './BaseUrlContext';
+import {useCart} from './CartContext';
 
 const ProductDetails = ({navigation}) => {
   const {baseUrl} = useBaseUrl();
+  const {activeCartUuid} = useCart();
+
+  console.log(activeCartUuid, ':activeCartUuidactiveCartUuid');
 
   const route = useRoute();
   const {product} = route.params;
-  console.log('producttttt  : ', product);
+  // console.log('producttttt  : ', product);
 
   const showAddedToCart = () => {
     showMessage({
@@ -44,45 +48,58 @@ const ProductDetails = ({navigation}) => {
 
   const handleSizeSelection = size => {
     setSelectedSize(size);
+
+    const selectedVariant = product.variants.find(
+      variant => variant.size === size,
+    );
+    if (selectedVariant) {
+      // console.log('Selected Variant SKU:', selectedVariant.sku);
+      //console.log('Selected Variant Size:', selectedVariant.size);
+    }
   };
 
   //Add To Cart
 
   const handleToAdmin = async item => {
     console.log('Selected Size:', selectedSize);
-
-    const userItem = {
-      sku: item.sku,
-      qty: quantity,
-      variant_options: selectedSize,
-    };
-
-    try {
-      const response = await fetch(
-        `${baseUrl}/api/cart/02010c86-bccd-41df-acfe-d800277feb72/items`,
-        // /  /  /  /  /  /  /   /   /   / {id} // / / / / / / / / / / /
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+    const selectedVariant = item.variants.find(
+      variant => variant.size === selectedSize,
+    );
+    if (selectedVariant) {
+      try {
+        const userItem = {
+          sku: selectedVariant.sku,
+          qty: quantity,
+          variant_options: selectedSize,
+        };
+        console.log(userItem);
+        const response = await fetch(
+          `${baseUrl}/api/cart/${activeCartUuid}/items`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userItem),
           },
-          body: JSON.stringify(userItem),
-        },
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Item added successfully to cart:', data);
-        showAddedToCart();
-      } else {
-        console.error(
-          'Failed to add item to cart:',
-          response.status,
-          response.statusText,
         );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Item added successfully to cart:', data);
+          showAddedToCart();
+        } else {
+          console.error(
+            'Failed to add item to cart:',
+            response.status,
+            response.statusText,
+          );
+        }
+      } catch (error) {
+        console.error('Error occurred while adding item to cart:', error);
       }
-    } catch (error) {
-      console.error('Error occurred while adding item to cart:', error);
+    } else {
+      console.error('Selected size not found in variants');
     }
   };
 

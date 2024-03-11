@@ -1,3 +1,5 @@
+// CartContext.js
+
 import React, {
   createContext,
   useContext,
@@ -6,9 +8,11 @@ import React, {
   useState,
 } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {UserType} from './UserContext';
 import axios from 'axios';
-import FlashMessage, {showMessage} from 'react-native-flash-message';
+import {BarIndicator} from 'react-native-indicators';
+import {useBaseUrl} from './BaseUrlContext';
+import {showMessage} from 'react-native-flash-message';
+
 const initialState = {
   items: [],
 };
@@ -51,74 +55,58 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({children}) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [loading, setLoading] = useState(true);
+  const [cartData, setCartData] = useState([]);
+  const [activeCartUuid, setActiveCartUuid] = useState('');
 
-  const addToCart = item => {
-    dispatch({type: ADD_TO_CART, payload: item});
-  };
+  const {baseUrl} = useBaseUrl();
 
-  const [cartItems, setCartItems] = useState([]);
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/api/cart/getcarts?sid=LOhkeQiWzWmfqgP3qCD98C9v-pD4Pnrc`,
+        );
+        const responseData = response.data;
+  
+        setCartData(responseData.activeCartItems);
+        setActiveCartUuid(responseData.activeCart.uuid);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching cart data:', error);
+        setLoading(false);
+      }
+    };
+    fetchCartData();
+  }, []);
 
-  const calculateTotalAmount = () => {
-    return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0,
-    );
-  };
-  const calculateCouponDiscount = () => {
-    if (appliedCoupon === 'GOLDENFEATHER') {
-      return calculateTotalAmount() * 0.1;
+  useEffect(() => {
+    if (activeCartUuid) {
+      console.log('activeCartUuid:', activeCartUuid);
     }
-    return 0;
-  };
+  }, [activeCartUuid]);
 
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState('');
-
-  const handleApplyCoupon = () => {
-    if (couponCode === 'GOLDENFEATHER') {
-      setAppliedCoupon(couponCode);
-      showCouponSuccess();
-    } else {
-      showCouponFailed();
-      setAppliedCoupon('');
+  const handleRemoveItem = async uuid => {
+    try {
+      await axios.delete(`${baseUrl}/api/cart/${activeCartUuid}/items/${uuid}`);
+      setCartData(cartData.filter(item => item.uuid !== uuid));
+      console.log('Item removed successfully');
+      showMessage({
+        message: 'Item removed ',
+        type: 'none',
+      });
+    } catch (error) {
+      console.log('Failed to remove item from cart');
     }
   };
-
-  const showCouponSuccess = () => {
-    showMessage({
-      message: 'Coupon Added',
-      type: 'success',
-    });
-  };
-  const showCouponFailed = () => {
-    showMessage({
-      message: 'Invalid coupon code',
-      type: 'warning',
-    });
-  };
-
-  const [selectedAddress, setSelectedAddress] = useState('');
-  const [userDetails, setUserDetails] = useState({name: '', email: ''});
 
   return (
     <CartContext.Provider
       value={{
-        cart: state,
-        userDetails,
-        setUserDetails,
-        addToCart,
-
-        calculateTotalAmount,
-        calculateCouponDiscount,
-        showMessage,
-        handleApplyCoupon,
-        couponCode,
-        setCouponCode,
-        cartItems,
-        setCartItems,
-        selectedAddress,
-        setSelectedAddress,
+        loading,
+        cartData,
+        activeCartUuid, // Providing activeCartUuid in the context
+        handleRemoveItem,
       }}>
       {children}
     </CartContext.Provider>

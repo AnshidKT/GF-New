@@ -11,12 +11,15 @@ import {BarIndicator} from 'react-native-indicators';
 import {useBaseUrl} from './BaseUrlContext';
 import {ScrollView} from 'react-native';
 
-const Payment = ({navigation}) => {
+const Payment = ({navigation, route}) => {
   const [loading, setLoading] = useState(false);
   const [selectedPaymentIndex, setSelectedPaymentIndex] = useState();
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [paypalInputVisible, setPaypalInputVisible] = useState(false);
   const {baseUrl} = useBaseUrl();
+
+  // const {name, email} = route.params;
+  // console.log(name, email);
 
   useEffect(() => {
     setLoading(true);

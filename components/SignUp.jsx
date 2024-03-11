@@ -92,6 +92,10 @@ const SignUp = ({navigation}) => {
         setPassword('');
         setTicked(false);
         navigation.navigate('SignIn');
+        // navigation.navigate('Payment', {
+        //   name: name,
+        //   email: email,
+        // });
       })
       .catch(error => {
         console.log('Registration Error:', error);

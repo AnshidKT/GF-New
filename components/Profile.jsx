@@ -15,54 +15,9 @@ import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-picker';
 import {useCart} from './CartContext';
 
-const Profile = ({drawerRef, profileToggleMenu, navigation}) => {
-  const {setUserDetails, userDetails} = useCart();
-  const {userId, setUserId} = useContext(UserType);
-
-  useEffect(() => {
-    if (userId) {
-      fetchUserDetails();
-    }
-  }, [userId]);
-
-  const fetchUserDetails = async () => {
-    try {
-      const response = await axios.get(
-        `http://192.168.1.38:3000/api/userDetails/${userId}`,
-      );
-      const fetchedUserDetails = response.data;
-
-      setUserDetails(fetchedUserDetails);
-    } catch (error) {
-      console.log(error, 'error');
-    }
-  };
-
-  // const [imageSource, setImageSource] = useState(
-  //   require('../Assets/Normal-IMG/add-person.png'),
-  // );
-
-  // const handleViewClick = async () => {
-  //   try {
-  //     const result = await DocumentPicker.pick({
-  //       type: [DocumentPicker.types.images],
-  //     });
-
-  //     if (result.uri) {
-  //       setImageSource({uri: result.uri});
-  //       console.log(imageSource, ': updated'); // Log the updated state
-  //     }
-  //   } catch (err) {
-  //     if (DocumentPicker.isCancel(err)) {
-  //     } else {
-  //       console.error('Error picking document', err);
-  //     }
-  //   }
-  // };
-
-  const getFirstLetter = name => {
-    return name ? name.charAt(0).toUpperCase() : '';
-  };
+const Profile = ({navigation, route}) => {
+  // const {name, email} = route.params;
+  // console.log(name, email);
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%'}}>
@@ -76,7 +31,7 @@ const Profile = ({drawerRef, profileToggleMenu, navigation}) => {
             flexDirection: 'row',
             paddingLeft: 10,
           }}>
-          <TouchableOpacity onPress={profileToggleMenu}>
+          <TouchableOpacity>
             {/* <TouchableOpacity onPress={() => drawerRef.current.closeDrawer()}> */}
             <View
               style={{
@@ -182,7 +137,7 @@ const Profile = ({drawerRef, profileToggleMenu, navigation}) => {
                       color: '#333333',
                       textAlign: 'center',
                     }}>
-                    {getFirstLetter(userDetails.name)}
+                    {/* {getFirstLetter(userDetails.name)} */}
                   </Text>
                 </View>
                 {/* </TouchableOpacity> */}
@@ -208,10 +163,10 @@ const Profile = ({drawerRef, profileToggleMenu, navigation}) => {
                   borderRadius: 10,
                 }}>
                 <Text style={{fontSize: 22, color: 'black'}}>
-                  {userDetails.name}
+               {/* Username {name} */}
                 </Text>
                 <Text style={{fontSize: 13, color: 'black'}}>
-                  {userDetails.email}
+                  {/* useremail {email} */}
                 </Text>
               </View>
               <View
@@ -262,8 +217,8 @@ const Profile = ({drawerRef, profileToggleMenu, navigation}) => {
           <Text style={{fontSize: 18, color: 'black'}}>Account Settings</Text>
         </View>
 
-        <TouchableOpacity 
-      // onPress={() => navigation.navigate('Favourite')}
+        <TouchableOpacity
+        // onPress={() => navigation.navigate('Favourite')}
         >
           <View
             style={{
@@ -281,7 +236,7 @@ const Profile = ({drawerRef, profileToggleMenu, navigation}) => {
             <Text style={{fontSize: 18, color: 'black'}}>My Favourites</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
         //onPress={() => navigation.navigate('MyOrders')}
         >
           <View

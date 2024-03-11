@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {StyleSheet, Text, Image, TouchableOpacity, View} from 'react-native';
 import {ScrollView} from 'react-native';
 import {TextInput} from 'react-native';
@@ -7,65 +7,34 @@ import Footer from './Footer';
 import axios from 'axios';
 import {useBaseUrl} from './BaseUrlContext';
 import {BarIndicator} from 'react-native-indicators';
-
+import {useCart} from './CartContext';
+import {useFocusEffect} from '@react-navigation/native';
 const Cart = ({navigation}) => {
-  const [cartData, setCartData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const {baseUrl} = useBaseUrl();
-
-  const cartUserId = '9a46a92e-a1fa-44e5-b860-8d6a95c7a24f';
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/cart/getcarts?uuid=${cartUserId}`,
-        );
-        // console.log('Response Data:', response.data);
-        const cart_items = response.data.items;
-        console.log('Cart Items:', cart_items);
-        setCartData(cart_items);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching cart data:', error);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  const {cartData, loading, handleRemoveItem} = useCart();
 
   const calculateTotalPrice = () => {
     if (!cartData || cartData.length === 0) {
       return 0;
     }
-
     return cartData.reduce(
       (total, item) => total + item.final_price * item.qty,
       0,
     );
   };
 
-  const id = 'ca193cf1-f6a7-4a49-aad6-ee3975411bae';
-  const itemId = cartData.length > 0 ? cartData[0].uuid : null;
-
-  console.log('itemId : ', itemId);
-
-  const handleRemoveItem = async () => {
-    try {
-      await axios.delete(`${baseUrl}/api/cart/${id}/items/${itemId}`);
-      const updatedCartData = cartData.filter(item => item.uuid !== itemId);
-
-      setCartData(updatedCartData);
-      showMessage({
-        message: 'Item removed from cart',
-        type: 'success',
-      });
-    } catch (error) {
-      console.error('Error removing item from cart:', error);
-
-      console.log('Failed to remove item from cart');
-    }
+  const removeItem = uuid => {
+    handleRemoveItem(uuid);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      cartData;
+      return () => {
+        cartData;
+      };
+    }, [cartData]),
+  );
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>
@@ -184,10 +153,7 @@ const Cart = ({navigation}) => {
                         alignItems: 'center',
                         justifyContent: 'space-around',
                       }}>
-                      <TouchableOpacity
-                        onPress={() =>
-                          handleRemoveItem(item.cart_id, item.cart_item_id)
-                        }>
+                      <TouchableOpacity onPress={() => removeItem(item.uuid)}>
                         <Image
                           style={{tintColor: '#ff3333'}}
                           source={require('../Assets/Normal-IMG/delete.png')}

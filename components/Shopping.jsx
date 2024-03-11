@@ -163,7 +163,7 @@ const Shopping = () => {
                         <Image
                           style={{width: 130, height: 90}}
                           source={{
-                            uri: `http://192.168.1.39:3000${item.listingImage}`,
+                            uri: `${baseUrl}${item.thumbImage}`,
                           }}
                           onError={error =>
                             console.error('Image loading error:', error)
