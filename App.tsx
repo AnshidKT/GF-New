@@ -7,9 +7,9 @@ import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import SignUp from './components/SignUp';
 import ProductDetails from './components/ProductDetails';
 import {CartProvider} from './components/CartContext';
-import Address from './components/Address';
+import Address from './components/ShippingAddress';
 import {UserContext} from './components/UserContext';
-import AddAddress from './components/AddAddress';
+import AddAddress from './components/BillingAddress';
 import Payment from './components/Payment';
 import Favourite from './components/Favourite';
 import MyOrders from './components/MyOrders';
@@ -20,6 +20,8 @@ import Demoo from './components/Demoo';
 import {BaseUrlProvider} from './components/BaseUrlContext';
 import ForgotPassword from './components/ForgotPassword';
 import DemoHome from './components/DemoHome';
+import BillingAddress from './components/BillingAddress';
+import ShippingAddress from './components/ShippingAddress';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,8 +39,8 @@ const App = () => {
               <Stack.Screen name="SignIn" component={SignIn} />
               <Stack.Screen name="SignUp" component={SignUp} />
               <Stack.Screen name="Index" component={Index} />
-              <Stack.Screen name="Address" component={Address} />
-              <Stack.Screen name="AddAddress" component={AddAddress} />
+              <Stack.Screen name="ShippingAddress" component={ShippingAddress} />
+              <Stack.Screen name="BillingAddress" component={BillingAddress} />
               <Stack.Screen name="ProductDetails" component={ProductDetails} />
               <Stack.Screen name="Payment" component={Payment} />
               <Stack.Screen name="Favourite" component={Favourite} />

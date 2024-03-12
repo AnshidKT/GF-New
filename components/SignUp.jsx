@@ -10,8 +10,11 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import axios from 'axios';
+import {useBaseUrl} from './BaseUrlContext';
 
 const SignUp = ({navigation}) => {
+  const {baseUrl} = useBaseUrl();
+
   const [isTicked, setTicked] = useState(false);
 
   const handleViewClick = () => {
@@ -79,7 +82,7 @@ const SignUp = ({navigation}) => {
     };
 
     axios
-      .post('http://192.168.1.39:3000/api/customers', userData)
+      .post(`${baseUrl}/api/customers`, userData)
       .then(response => {
         console.log(response);
         Alert.alert(

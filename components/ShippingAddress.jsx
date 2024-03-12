@@ -13,8 +13,12 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {useBaseUrl} from './BaseUrlContext';
 
 import SelectDropdown from 'react-native-select-dropdown';
+import {useCart} from './CartContext';
 
-const Address = () => {
+const ShippingAddress = () => {
+  const {baseUrl} = useBaseUrl();
+  const {activeCartUuid} = useCart();
+
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -25,8 +29,6 @@ const Address = () => {
   const [street, setStreet] = useState('');
   const [landmark, setLandmark] = useState('');
   const [postalCode, setPostalCode] = useState('');
-
-  const {baseUrl} = useBaseUrl();
 
   const addAddress = async () => {
     if (
@@ -44,7 +46,7 @@ const Address = () => {
 
     try {
       const response = await fetch(
-        `${baseUrl}/api/carts/02010c86-bccd-41df-acfe-d800277feb72/addresses`,
+        `${baseUrl}/api/carts/${activeCartUuid}/addresses`,
 
         {
           method: 'POST',
@@ -61,7 +63,7 @@ const Address = () => {
               telephone: mobileNo,
               postcode: postalCode,
             },
-            type: 'billing',
+            type: 'shipping',
           }),
         },
       );
@@ -75,7 +77,7 @@ const Address = () => {
         [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('Payment'),
+            onPress: () => navigation.navigate('BillingAddress'),
           },
         ],
         {cancelable: false},
@@ -120,7 +122,7 @@ const Address = () => {
           </TouchableOpacity>
 
           <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
-            Add Address
+            Shipping Address
           </Text>
 
           <View
@@ -308,6 +310,7 @@ const Address = () => {
   );
 };
 
-export default Address;
+export default ShippingAddress;
 
 const styles = StyleSheet.create({});
+

@@ -11,7 +11,10 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
+import {useBaseUrl} from './BaseUrlContext';
 const SignIn = ({navigation}) => {
+  const {baseUrl} = useBaseUrl();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +43,7 @@ const SignIn = ({navigation}) => {
 
     axios
       // .post(`http:192.168.1.38:3000/${apiEndpoint}`, user)
-      .post('http://192.168.1.39:3000/customer/login', user)
+      .post(`${baseUrl}/customer/login`, user)
       .then(response => {
         console.log(response);
         const token = response.data.token;

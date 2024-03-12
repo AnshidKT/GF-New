@@ -11,7 +11,15 @@ import {useCart} from './CartContext';
 import {useFocusEffect} from '@react-navigation/native';
 const Cart = ({navigation}) => {
   const {baseUrl} = useBaseUrl();
-  const {cartData, loading, handleRemoveItem} = useCart();
+  const {
+    cartData,
+    loading,
+    fetchCartData,
+    handleRemoveItem,
+    handleApplyCoupon,
+    couponCode,
+    setCouponCode,
+  } = useCart();
 
   const calculateTotalPrice = () => {
     if (!cartData || cartData.length === 0) {
@@ -29,10 +37,7 @@ const Cart = ({navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
-      cartData;
-      return () => {
-        cartData;
-      };
+      fetchCartData();
     }, [cartData]),
   );
 
@@ -196,8 +201,8 @@ const Cart = ({navigation}) => {
                         flexDirection: 'row',
                       }}>
                       <TextInput
-                        // onChangeText={text => setCouponCode(text)}
-                        // value={couponCode}
+                       onChangeText={text => setCouponCode(text)}
+                         value={couponCode}
                         placeholder="Apply your coupons here..."
                         style={{
                           borderWidth: 0.2,
@@ -210,7 +215,7 @@ const Cart = ({navigation}) => {
                         }}
                       />
                       <TouchableOpacity
-                        // onPress={handleApplyCoupon}
+                        onPress={handleApplyCoupon}
                         style={{
                           width: 70,
                           height: '65%',
@@ -382,7 +387,7 @@ const Cart = ({navigation}) => {
                         justifyContent: 'center',
                       }}>
                       <TouchableOpacity
-                        onPress={() => navigation.navigate('Address')}>
+                        onPress={() => navigation.navigate('ShippingAddress')}>
                         {/* <TouchableOpacity onPress={onPressOpenRBSheet}> */}
                         <View
                           style={{
