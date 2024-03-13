@@ -10,8 +10,11 @@ import {
 import {BarIndicator} from 'react-native-indicators';
 import {useBaseUrl} from './BaseUrlContext';
 import {ScrollView} from 'react-native';
+import {useCart} from './CartContext';
 
 const Payment = ({navigation, route}) => {
+  const {total} = useCart();
+
   const [loading, setLoading] = useState(false);
   const [selectedPaymentIndex, setSelectedPaymentIndex] = useState();
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -84,7 +87,8 @@ const Payment = ({navigation, route}) => {
               paddingLeft: 20,
               paddingRight: 20,
             }}>
-            <TouchableOpacity onPress={() => navigation.navigate('Address')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('BillingAddress')}>
               <View
                 style={{
                   width: 40,
@@ -136,10 +140,7 @@ const Payment = ({navigation, route}) => {
               </Text>
               <View style={{padding: 10}}>
                 <Text style={{color: 'gray', marginBottom: 2}}>
-                  Username {'     '}: {'  '}
-                </Text>
-                <Text style={{color: 'gray'}}>
-                  Useremail {'     '}: {'  '}
+                  Contact {'        '}: {'  '}
                 </Text>
 
                 <View
@@ -157,7 +158,7 @@ const Payment = ({navigation, route}) => {
                       justifyContent: 'space-between',
                     }}>
                     <Text style={{fontWeight: '400', color: 'gray'}}>
-                      Delivery to {'     '}:{' '}
+                      Delivery to {'    '}:{' '}
                     </Text>
                     <Text style={{fontWeight: '400', color: 'gray'}}>
                       Total amount :
@@ -173,16 +174,17 @@ const Payment = ({navigation, route}) => {
                     }}>
                     <Text style={{fontWeight: '400', color: 'gray'}}></Text>
                     <Text style={{fontWeight: '400', color: 'gray'}}></Text>
-                    <Text style={{fontWeight: '400', color: 'gray'}}></Text>
-                    <Text style={{fontWeight: '400', color: 'gray'}}></Text>
 
                     <Text
                       style={{
-                        fontWeight: '600',
-                        fontSize: 15,
+                        fontWeight: '500',
+                        fontSize: 16,
                         marginBottom: '-1%',
-                        color: 'gray',
-                      }}></Text>
+                        color: 'green',
+                      }}>
+                      
+                     QR {total}
+                    </Text>
                   </View>
                 </View>
               </View>

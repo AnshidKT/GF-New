@@ -19,17 +19,11 @@ const Cart = ({navigation}) => {
     handleApplyCoupon,
     couponCode,
     setCouponCode,
+    couponApplied,
+    subtotal,
+    discountPrice,
+    total,
   } = useCart();
-
-  const calculateTotalPrice = () => {
-    if (!cartData || cartData.length === 0) {
-      return 0;
-    }
-    return cartData.reduce(
-      (total, item) => total + item.final_price * item.qty,
-      0,
-    );
-  };
 
   const removeItem = uuid => {
     handleRemoveItem(uuid);
@@ -146,7 +140,7 @@ const Cart = ({navigation}) => {
                         justifyContent: 'space-around',
                       }}>
                       <Text style={{color: '#00b33c', fontWeight: 'bold'}}>
-                        QR {item.final_price * item.qty}
+                        QR {parseFloat(item.sub_total).toFixed()}
                       </Text>
                     </View>
                     <View
@@ -196,43 +190,64 @@ const Cart = ({navigation}) => {
                         alignItems: 'center',
                         width: '100%',
                         height: '50%',
-                        // backgroundColor: 'yellow',
                         justifyContent: 'space-evenly',
                         flexDirection: 'row',
                       }}>
-                      <TextInput
-                       onChangeText={text => setCouponCode(text)}
-                         value={couponCode}
-                        placeholder="Apply your coupons here..."
-                        style={{
-                          borderWidth: 0.2,
-                          borderRadius: 1,
-                          paddingLeft: 8,
-                          width: '70%',
-                          height: '75%',
-                          backgroundColor: 'white',
-                          borderColor: '#ababab',
-                        }}
-                      />
-                      <TouchableOpacity
-                        onPress={handleApplyCoupon}
-                        style={{
-                          width: 70,
-                          height: '65%',
-                          backgroundColor: '#007AFF',
-                        }}>
+                      {!couponApplied ? (
+                        <>
+                          <TextInput
+                            onChangeText={text => setCouponCode(text)}
+                            value={couponCode}
+                            placeholder="Apply your coupons here..."
+                            style={{
+                              borderWidth: 0.2,
+                              borderRadius: 1,
+                              paddingLeft: 8,
+                              width: '70%',
+                              height: '75%',
+                              backgroundColor: 'white',
+                              borderColor: '#ababab',
+                            }}
+                          />
+                          <TouchableOpacity
+                            onPress={handleApplyCoupon}
+                            style={{
+                              width: 70,
+                              height: '65%',
+                              backgroundColor: '#007AFF',
+                            }}>
+                            <View
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}>
+                              <Text
+                                style={{color: 'white', textAlign: 'center'}}>
+                                Apply
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        </>
+                      ) : (
                         <View
                           style={{
-                            width: '100%',
-                            height: '100%',
+                            width: 'auto',
+                            height: 'auto',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
-                            justifyContent: 'center',
                           }}>
-                          <Text style={{color: 'white', textAlign: 'center'}}>
-                            Apply
-                          </Text>
+                          {/* <Image
+                            style={{width: 25, marginRight: 10, height: 25}}
+                            source={require('../Assets/Normal-IMG/discount.png')}
+                          />
+                          <Text style={{color: 'green', fontWeight: 'bold'}}>
+                            Coupon applied successfully!
+                          </Text> */}
                         </View>
-                      </TouchableOpacity>
+                      )}
                     </View>
                   </View>
                 </View>
@@ -289,9 +304,8 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                        {' '}
-                        {calculateTotalPrice()}
-                        {/* {calculateTotalAmount()} */}
+                        QR {subtotal}
+                        {/* show the sub_total from api */}
                       </Text>
                     </View>
                     <View
@@ -316,7 +330,8 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                        {/* {calculateCouponDiscount()} */}
+                        QR {discountPrice}
+                        {/* show the discount_amount from api */}
                       </Text>
                     </View>
                     <View
@@ -372,8 +387,8 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '600',
                         }}>
-                        {calculateTotalPrice()}
-                        {/* QR {calculateTotalAmount() - calculateCouponDiscount()} */}
+                        QR {total}
+                        {/* show the total from api */}
                       </Text>
                     </View>
 

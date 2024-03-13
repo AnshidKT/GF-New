@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -62,6 +63,11 @@ const ProductDetails = ({navigation}) => {
 
   const handleToAdmin = async item => {
     console.log('Selected Size:', selectedSize);
+    if (!selectedSize) {
+      Alert.alert('Info', 'Please select a size');
+      return;
+    }
+
     const selectedVariant = item.variants.find(
       variant => variant.size === selectedSize,
     );
@@ -102,7 +108,6 @@ const ProductDetails = ({navigation}) => {
       console.error('Selected size not found in variants');
     }
   };
-
   const renderSizeButton = size => (
     <TouchableOpacity
       key={size}

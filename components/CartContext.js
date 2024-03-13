@@ -17,11 +17,15 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({children}) => {
+  const {baseUrl} = useBaseUrl();
+
   const [loading, setLoading] = useState(true);
   const [cartData, setCartData] = useState([]);
   const [activeCartUuid, setActiveCartUuid] = useState('');
 
-  const {baseUrl} = useBaseUrl();
+  const [subtotal, setSubtotal] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [discountPrice, setDiscountPrice] = useState(0);
 
   const fetchCartData = async () => {
     try {
@@ -33,11 +37,29 @@ export const CartProvider = ({children}) => {
       setCartData(responseData.activeCartItems);
       setActiveCartUuid(responseData.activeCart.uuid);
       setLoading(false);
+
+      // Calculate subtotal, total, and discount price
+      const subtotal = responseData.activeCartItems.reduce(
+        (total, item) => total + parseFloat(item.sub_total),
+        0,
+      );
+      const discountPrice = responseData.activeCartItems.reduce(
+        (total, item) => total + parseFloat(item.discount_amount),
+        0,
+      );
+      const total = subtotal - discountPrice;
+      setSubtotal(subtotal);
+      setTotal(total);
+      setDiscountPrice(discountPrice);
     } catch (error) {
       console.error('Error fetching cart data:', error);
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCartData();
+  }, []);
 
   useEffect(() => {
     if (activeCartUuid) {
@@ -59,10 +81,31 @@ export const CartProvider = ({children}) => {
     }
   };
 
-  const [couponCode, setCouponCode] = useState('');
+  const calculateTotalPrice = () => {
+    if (!cartData || cartData.length === 0) {
+      return 0;
+    }
+    return cartData.reduce(
+      (total, item) => total + item.final_price * item.qty,
+      0,
+    );
+  };
 
+  // coupon code = TST10560
+  const [couponCode, setCouponCode] = useState('');
+  const [couponApplied, setCouponApplied] = useState(false);
   const handleApplyCoupon = async () => {
     try {
+      if (subtotal < 500) {
+        setCouponApplied(false);
+        showMessage({
+          message: 'Minimum subtotal: 500',
+          type: 'warning',
+        });
+
+        return;
+      }
+
       const response = await axios.post(
         `${baseUrl}/api/carts/${activeCartUuid}/coupons`,
         {
@@ -73,6 +116,7 @@ export const CartProvider = ({children}) => {
         message: 'Coupon applied successfully',
         type: 'success',
       });
+      setCouponApplied(true);
     } catch (error) {
       if (error.response) {
         console.log(error.response.headers);
@@ -88,8 +132,6 @@ export const CartProvider = ({children}) => {
     }
   };
 
-  // coupon code = TST10560
-
   return (
     <CartContext.Provider
       value={{
@@ -102,6 +144,11 @@ export const CartProvider = ({children}) => {
         handleApplyCoupon,
         couponCode,
         setCouponCode,
+        couponApplied,
+        calculateTotalPrice,
+        subtotal,
+        discountPrice,
+        total,
       }}>
       {children}
     </CartContext.Provider>

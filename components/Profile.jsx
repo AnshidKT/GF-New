@@ -15,7 +15,7 @@ import DocumentPicker from 'react-native-document-picker';
 import ImagePicker from 'react-native-image-picker';
 import {useCart} from './CartContext';
 
-const Profile = ({navigation, route}) => {
+const Profile = ({navigation, profileToggleMenu}) => {
   // const {name, email} = route.params;
   // console.log(name, email);
 
@@ -31,7 +31,7 @@ const Profile = ({navigation, route}) => {
             flexDirection: 'row',
             paddingLeft: 10,
           }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={profileToggleMenu}>
             {/* <TouchableOpacity onPress={() => drawerRef.current.closeDrawer()}> */}
             <View
               style={{
@@ -115,6 +115,15 @@ const Profile = ({navigation, route}) => {
                     borderRadius: 100,
                     marginTop: '-22%',
                   }}>
+                  <Image
+                    style={{
+                      width: 90,
+                      borderRadius: 100,
+                      height: 90,
+                    }}
+                    source={require('../Assets/Normal-IMG/profile-dummy-img.jpg')}
+                  />
+
                   {/* <Image
             style={{
               width: '80%',
@@ -129,7 +138,7 @@ const Profile = ({navigation, route}) => {
                 userDetails.name
               )}`,
             }}
-          /> */}
+          /> 
                   <Text
                     style={{
                       fontSize: 70,
@@ -137,8 +146,9 @@ const Profile = ({navigation, route}) => {
                       color: '#333333',
                       textAlign: 'center',
                     }}>
-                    {/* {getFirstLetter(userDetails.name)} */}
+                    {/* {getFirstLetter(userDetails.name)} 
                   </Text>
+                  */}
                 </View>
                 {/* </TouchableOpacity> */}
               </View>
@@ -163,7 +173,7 @@ const Profile = ({navigation, route}) => {
                   borderRadius: 10,
                 }}>
                 <Text style={{fontSize: 22, color: 'black'}}>
-               {/* Username {name} */}
+                  {/* Username {name} */}
                 </Text>
                 <Text style={{fontSize: 13, color: 'black'}}>
                   {/* useremail {email} */}

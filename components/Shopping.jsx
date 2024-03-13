@@ -50,6 +50,10 @@ const Shopping = () => {
     navigation.navigate('ProductDetails', {product: item});
   };
 
+
+
+  //Search 
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -85,8 +89,6 @@ const Shopping = () => {
       setSearchQuery(suggestion.title);
       setSuggestions([]);
       setSelectedProduct(suggestion);
-
-      // Filter the selected category products based on the selected suggestion
       const selectedProductData = selectedCategory.products.filter(
         product => product.sku.toLowerCase() === suggestion.title.toLowerCase(),
       );
@@ -100,6 +102,9 @@ const Shopping = () => {
       setSelectedProduct(null);
     }
   };
+
+
+  //filter
 
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);

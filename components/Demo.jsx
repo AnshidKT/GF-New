@@ -1,74 +1,44 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, Image, TouchableOpacity, View} from 'react-native';
-import {ScrollView} from 'react-native';
-import {TextInput} from 'react-native';
-import FlashMessage, {showMessage} from 'react-native-flash-message';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, Text, Image, TouchableOpacity, View } from 'react-native';
+import { ScrollView } from 'react-native';
+import { TextInput } from 'react-native';
+import FlashMessage, { showMessage } from 'react-native-flash-message';
 import Footer from './Footer';
 import axios from 'axios';
-import {useBaseUrl} from './BaseUrlContext';
-import {BarIndicator} from 'react-native-indicators';
-const Demo = ({navigation}) => {
-  const [cartData, setCartData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const {baseUrl} = useBaseUrl();
+import { useBaseUrl } from './BaseUrlContext';
+import { BarIndicator } from 'react-native-indicators';
+import { useCart } from './CartContext';
+import { useFocusEffect } from '@react-navigation/native';
+const Cart = ({ navigation }) => {
+  const { baseUrl } = useBaseUrl();
+  const {
+    cartData,
+    loading,
+    fetchCartData,
+    handleRemoveItem,
+    handleApplyCoupon,
+    couponCode,
+    setCouponCode,
+    calculateTotalPrice,
+    subtotal,
+    discountPrice,
+    total
+  } = useCart();
 
-  const cartUserId = '9a46a92e-a1fa-44e5-b860-8d6a95c7a24f';
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/cart/getcarts?uuid=${cartUserId}`,
-        );
-        // console.log('Response Data:', response.data);
-        const cart_items = response.data.items;
-        //  console.log('Cart Items:', cart_items);
-        setCartData(cart_items);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching cart data:', error);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const calculateTotalPrice = () => {
-    if (!cartData || cartData.length === 0) {
-      return 0;
-    }
-
-    return cartData.reduce(
-      (total, item) => total + item.final_price * item.qty,
-      0,
-    );
+  const removeItem = uuid => {
+    handleRemoveItem(uuid);
   };
 
-  const handleRemoveItem = async (cartId, cartItemId) => {
-
-console.log(cartId);
-console.log(cartItemId);
-
-    try {
-      await axios.delete(`${baseUrl}/api/cart/${cartId}/items/${cartItemId}`);
-      const updatedCartData = cartData.filter(
-        item => item.cart_item_id !== cartItemId,
-      );
-      setCartData(updatedCartData);
-      showMessage({
-        message: 'Item removed from cart',
-        type: 'success',
-      });
-    } catch (error) {
-      console.error('Error removing item from cart:', error);
-      console.log('Failed to remove item from cart');
-    }
-  };
+  useFocusEffect(
+    useCallback(() => {
+      fetchCartData();
+    }, [cartData]),
+  );
 
   return (
-    <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>
+    <View style={{ backgroundColor: '#F7F7F7', width: '100%', height: '100%' }}>
       {loading ? (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <BarIndicator color="#007AFF" />
         </View>
       ) : (
@@ -95,17 +65,17 @@ console.log(cartItemId);
                   backgroundColor: '#ffffff',
                 }}>
                 <Image
-                  style={{width: 20, height: 20}}
+                  style={{ width: 20, height: 20 }}
                   source={require('../Assets/Normal-IMG/left-arrow.png')}
                 />
               </View>
             </TouchableOpacity>
-            <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
-              Demo Cart
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: 'black' }}>
+              Demoooo Cart
             </Text>
-            <View style={{width: 40}}></View>
+            <View style={{ width: 40 }}></View>
           </View>
-          <ScrollView style={{paddingTop: 10}}>
+          <ScrollView style={{ paddingTop: 10 }}>
             {cartData && cartData.length > 0 ? (
               <>
                 {cartData.map(item => (
@@ -133,8 +103,8 @@ console.log(cartItemId);
                         justifyContent: 'center',
                       }}>
                       <Image
-                        source={{uri: baseUrl + item.thumbnail}}
-                        style={{width: '90%', height: '90%', borderRadius: 10}}
+                        source={{ uri: baseUrl + item.thumbnail }}
+                        style={{ width: '90%', height: '90%', borderRadius: 10 }}
                       />
                     </View>
                     <View
@@ -154,10 +124,10 @@ console.log(cartItemId);
                         {item.product_name}
                       </Text>
                       <Text
-                        style={{marginLeft: 9, fontSize: 11, color: 'black'}}>
+                        style={{ marginLeft: 9, fontSize: 11, color: 'black' }}>
                         Size: {JSON.parse(item.variant_options)[1].option_text}
                       </Text>
-                      <Text style={{fontSize: 12, marginLeft: 10}}>
+                      <Text style={{ fontSize: 12, marginLeft: 10 }}>
                         Qty : {item.qty}
                       </Text>
                     </View>
@@ -169,8 +139,8 @@ console.log(cartItemId);
                         alignItems: 'center',
                         justifyContent: 'space-around',
                       }}>
-                      <Text style={{color: '#00b33c', fontWeight: 'bold'}}>
-                        QR {item.final_price * item.qty}
+                      <Text style={{ color: '#00b33c', fontWeight: 'bold' }}>
+                        {item.sub_total}
                       </Text>
                     </View>
                     <View
@@ -182,10 +152,9 @@ console.log(cartItemId);
                         alignItems: 'center',
                         justifyContent: 'space-around',
                       }}>
-                      <TouchableOpacity
-                         onPress={() => handleRemoveItem(item.cart_id, item.cart_item_id)}>
+                      <TouchableOpacity onPress={() => removeItem(item.uuid)}>
                         <Image
-                          style={{tintColor: '#ff3333'}}
+                          style={{ tintColor: '#ff3333' }}
                           source={require('../Assets/Normal-IMG/delete.png')}
                         />
                       </TouchableOpacity>
@@ -212,7 +181,7 @@ console.log(cartItemId);
                       justifyContent: 'space-around',
                       borderRadius: 8,
                     }}>
-                    <Text style={{marginLeft: '5%'}}>Apply coupons</Text>
+                    <Text style={{ marginLeft: '5%' }}>Apply coupons</Text>
 
                     <View
                       style={{
@@ -226,8 +195,8 @@ console.log(cartItemId);
                         flexDirection: 'row',
                       }}>
                       <TextInput
-                        // onChangeText={text => setCouponCode(text)}
-                        // value={couponCode}
+                        onChangeText={text => setCouponCode(text)}
+                        value={couponCode}
                         placeholder="Apply your coupons here..."
                         style={{
                           borderWidth: 0.2,
@@ -240,7 +209,7 @@ console.log(cartItemId);
                         }}
                       />
                       <TouchableOpacity
-                        // onPress={handleApplyCoupon}
+                        onPress={handleApplyCoupon}
                         style={{
                           width: 70,
                           height: '65%',
@@ -253,7 +222,7 @@ console.log(cartItemId);
                             alignItems: 'center',
                             justifyContent: 'center',
                           }}>
-                          <Text style={{color: 'white', textAlign: 'center'}}>
+                          <Text style={{ color: 'white', textAlign: 'center' }}>
                             Apply
                           </Text>
                         </View>
@@ -290,7 +259,7 @@ console.log(cartItemId);
                         borderBottomWidth: 0.3,
                         borderBlockColor: '#e3e3e3',
                       }}>
-                      <Text style={{marginLeft: '5%'}}>Checkout</Text>
+                      <Text style={{ marginLeft: '5%' }}>Checkout</Text>
                     </View>
                     <View
                       style={{
@@ -305,7 +274,7 @@ console.log(cartItemId);
                         alignItems: 'center',
                         flexDirection: 'row',
                       }}>
-                      <Text style={{fontSize: 15, color: 'black'}}>
+                      <Text style={{ fontSize: 15, color: 'black' }}>
                         Your cart subtotal :
                       </Text>
                       <Text
@@ -314,9 +283,10 @@ console.log(cartItemId);
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                        {' '}
-                        {calculateTotalPrice()}
-                        {/* {calculateTotalAmount()} */}
+                        {subtotal}
+                        {/* show the sub_total from api */}
+
+
                       </Text>
                     </View>
                     <View
@@ -332,7 +302,7 @@ console.log(cartItemId);
                         flexDirection: 'row',
                         paddingLeft: 13,
                       }}>
-                      <Text style={{fontSize: 15, color: 'black'}}>
+                      <Text style={{ fontSize: 15, color: 'black' }}>
                         Discount coupons :{' '}
                       </Text>
                       <Text
@@ -341,7 +311,10 @@ console.log(cartItemId);
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                        {/* {calculateCouponDiscount()} */}
+                        {discountPrice}
+                        {/* show the discount_amount from api */}
+
+
                       </Text>
                     </View>
                     <View
@@ -357,7 +330,7 @@ console.log(cartItemId);
                         borderBottomWidth: 0.3,
                         borderBlockColor: '#e3e3e3',
                       }}>
-                      <Text style={{fontSize: 15, color: 'black'}}>
+                      <Text style={{ fontSize: 15, color: 'black' }}>
                         Shipping Charge :
                       </Text>
                       <Text
@@ -397,8 +370,8 @@ console.log(cartItemId);
                           color: 'green',
                           fontWeight: '600',
                         }}>
-                        {calculateTotalPrice()}
-                        {/* QR {calculateTotalAmount() - calculateCouponDiscount()} */}
+                        {total}
+                        {/* show the total from api */}
                       </Text>
                     </View>
 
@@ -412,7 +385,7 @@ console.log(cartItemId);
                         justifyContent: 'center',
                       }}>
                       <TouchableOpacity
-                        onPress={() => navigation.navigate('Address')}>
+                        onPress={() => navigation.navigate('ShippingAddress')}>
                         {/* <TouchableOpacity onPress={onPressOpenRBSheet}> */}
                         <View
                           style={{
@@ -423,7 +396,7 @@ console.log(cartItemId);
                             alignItems: 'center',
                             justifyContent: 'center',
                           }}>
-                          <Text style={{color: 'white', fontSize: 15}}>
+                          <Text style={{ color: 'white', fontSize: 15 }}>
                             Check Out
                           </Text>
                         </View>
@@ -442,11 +415,11 @@ console.log(cartItemId);
                   justifyContent: 'center',
                 }}>
                 <Image
-                  style={{marginTop: '-30%', width: 200, height: 200}}
+                  style={{ marginTop: '-30%', width: 200, height: 200 }}
                   source={require('../Assets/Normal-IMG/empty-cart.png')}
                 />
                 <Text
-                  style={{fontSize: 30, fontStyle: 'italic', color: 'black'}}>
+                  style={{ fontSize: 30, fontStyle: 'italic', color: 'black' }}>
                   Cart Is Empty
                 </Text>
               </View>
@@ -467,6 +440,6 @@ console.log(cartItemId);
   );
 };
 
-export default Demo;
+export default Cart;
 
 const styles = StyleSheet.create({});
