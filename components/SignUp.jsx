@@ -34,7 +34,8 @@ const SignUp = ({navigation}) => {
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/;
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+  const passwordRegex = /^(?=.{8}$)/;
+
 
   const handleRegister = () => {
     setNameError('');
@@ -52,7 +53,7 @@ const SignUp = ({navigation}) => {
       isValid = false;
     }
     if (!password || !passwordRegex.test(password)) {
-      setPasswordError('8 characters, 1 letter, 1 digit required.');
+      setPasswordError('8 characters required.');
       isValid = false;
     }
     if (!confirmPassword) {

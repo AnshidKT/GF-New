@@ -1,445 +1,316 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, Image, TouchableOpacity, View } from 'react-native';
-import { ScrollView } from 'react-native';
-import { TextInput } from 'react-native';
-import FlashMessage, { showMessage } from 'react-native-flash-message';
-import Footer from './Footer';
-import axios from 'axios';
-import { useBaseUrl } from './BaseUrlContext';
-import { BarIndicator } from 'react-native-indicators';
-import { useCart } from './CartContext';
-import { useFocusEffect } from '@react-navigation/native';
-const Cart = ({ navigation }) => {
-  const { baseUrl } = useBaseUrl();
-  const {
-    cartData,
-    loading,
-    fetchCartData,
-    handleRemoveItem,
-    handleApplyCoupon,
-    couponCode,
-    setCouponCode,
-    calculateTotalPrice,
-    subtotal,
-    discountPrice,
-    total
-  } = useCart();
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {Image} from 'react-native';
+import {TextInput} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {useBaseUrl} from './BaseUrlContext';
 
-  const removeItem = uuid => {
-    handleRemoveItem(uuid);
+import SelectDropdown from 'react-native-select-dropdown';
+import {useCart} from './CartContext';
+
+const Demo = () => {
+  const {baseUrl} = useBaseUrl();
+  const {activeCartUuid} = useCart();
+
+  const navigation = useNavigation();
+  const route = useRoute();
+
+  const [country, setCountry] = useState('');
+  const [name, setName] = useState('');
+  const [mobileNo, setMobileNo] = useState('');
+  const [houseNo, setHouseNo] = useState('');
+  const [street, setStreet] = useState('');
+  const [province, setProvince] = useState('US-KY');
+  const [postalCode, setPostalCode] = useState('');
+
+  const addAddress = async () => {
+    console.log('Country:', country);
+    console.log('Name:', name);
+    console.log('Mobile No:', mobileNo);
+    console.log('House No:', houseNo);
+    console.log('Street:', street);
+    console.log('Province:', province);
+    console.log('Postal Code:', postalCode);
+
+    if (
+      !country ||
+      !name ||
+      !mobileNo ||
+      !houseNo ||
+      !street ||
+      !province ||
+      !postalCode
+    ) {
+      Alert.alert('Info', 'Please fill in all the fields');
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/carts/${activeCartUuid}/addresses`,
+
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            address: {
+              address_1: houseNo,
+              city: street,
+              country: country,
+
+              full_name: name,
+              telephone: mobileNo,
+              province: province,
+              postcode: postalCode,
+            },
+            type: 'shipping',
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to add address');
+      }
+      Alert.alert(
+        'Success',
+        'Address added successfully',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('BillingAddress'),
+          },
+        ],
+        {cancelable: false},
+      );
+
+      console.log('Address added successfully');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+      console.log('Error', error.message);
+    }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchCartData();
-    }, [cartData]),
-  );
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [provinceOptions, setProvinceOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          'http://192.168.1.40:3000/api/shippingaddress',
+        );
+        const data = await response.json();
+        const uniqueCountries = [
+          ...new Set(data.data.map(item => item.country)),
+        ];
+        setCountryOptions(uniqueCountries);
+        const uniqueProvinces = [
+          ...new Set(data.data.map(item => item.province)),
+        ];
+        setProvinceOptions(uniqueProvinces);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <View style={{ backgroundColor: '#F7F7F7', width: '100%', height: '100%' }}>
-      {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <BarIndicator color="#007AFF" />
-        </View>
-      ) : (
-        <>
-          <FlashMessage position="top" />
-          <View
-            style={{
-              width: '100%',
-              height: 60,
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexDirection: 'row',
-              paddingLeft: 20,
-              paddingRight: 20,
-            }}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <View
-                style={{
-                  width: 40,
-                  borderRadius: 6,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 40,
-                  backgroundColor: '#ffffff',
-                }}>
-                <Image
-                  style={{ width: 20, height: 20 }}
-                  source={require('../Assets/Normal-IMG/left-arrow.png')}
-                />
-              </View>
-            </TouchableOpacity>
-            <Text style={{ fontSize: 22, fontWeight: 'bold', color: 'black' }}>
-              Demoooo Cart
-            </Text>
-            <View style={{ width: 40 }}></View>
-          </View>
-          <ScrollView style={{ paddingTop: 10 }}>
-            {cartData && cartData.length > 0 ? (
-              <>
-                {cartData.map(item => (
-                  <View
-                    key={item.cart_item_id}
-                    style={{
-                      flexDirection: 'row',
-                      width: '90%',
-                      borderTopEndRadius: 10,
-                      borderTopLeftRadius: 10,
-                      height: 80,
-                      backgroundColor: 'white',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      borderBottomWidth: 0.3,
-                      borderBottomColor: 'gray',
-                      marginTop: 10,
-                      marginLeft: '5%',
-                    }}>
-                    <View
-                      style={{
-                        width: '20%',
-                        height: '90%',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <Image
-                        source={{ uri: baseUrl + item.thumbnail }}
-                        style={{ width: '90%', height: '90%', borderRadius: 10 }}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        width: 'auto',
-                        height: '80%',
-                        flexDirection: 'column',
-                        justifyContent: 'space-evenly',
-                      }}>
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          marginLeft: 9,
-                          fontWeight: '500',
-                          color: 'black',
-                        }}>
-                        {item.product_name}
-                      </Text>
-                      <Text
-                        style={{ marginLeft: 9, fontSize: 11, color: 'black' }}>
-                        Size: {JSON.parse(item.variant_options)[1].option_text}
-                      </Text>
-                      <Text style={{ fontSize: 12, marginLeft: 10 }}>
-                        Qty : {item.qty}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        width: '24%',
-                        height: '80%',
-                        marginLeft: -20,
-                        alignItems: 'center',
-                        justifyContent: 'space-around',
-                      }}>
-                      <Text style={{ color: '#00b33c', fontWeight: 'bold' }}>
-                        {item.sub_total}
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        borderLeftColor: '#bfbfbf',
-                        borderLeftWidth: 0.2,
-                        width: '20%',
-                        height: '80%',
-                        alignItems: 'center',
-                        justifyContent: 'space-around',
-                      }}>
-                      <TouchableOpacity onPress={() => removeItem(item.uuid)}>
-                        <Image
-                          style={{ tintColor: '#ff3333' }}
-                          source={require('../Assets/Normal-IMG/delete.png')}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
-
-                <View
-                  style={{
-                    alignItems: 'center',
-                    width: '100%',
-                    height: 150,
-                    // backgroundColor: 'red',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                  }}>
-                  <View
-                    style={{
-                      width: '90%',
-                      height: '80%',
-                      backgroundColor: 'white',
-                      alignContent: 'flex-start',
-                      flexDirection: 'column',
-                      justifyContent: 'space-around',
-                      borderRadius: 8,
-                    }}>
-                    <Text style={{ marginLeft: '5%' }}>Apply coupons</Text>
-
-                    <View
-                      style={{
-                        borderTopWidth: 0.3,
-                        borderTopColor: '#e3e3e3',
-                        alignItems: 'center',
-                        width: '100%',
-                        height: '50%',
-                        // backgroundColor: 'yellow',
-                        justifyContent: 'space-evenly',
-                        flexDirection: 'row',
-                      }}>
-                      <TextInput
-                        onChangeText={text => setCouponCode(text)}
-                        value={couponCode}
-                        placeholder="Apply your coupons here..."
-                        style={{
-                          borderWidth: 0.2,
-                          borderRadius: 1,
-                          paddingLeft: 8,
-                          width: '70%',
-                          height: '75%',
-                          backgroundColor: 'white',
-                          borderColor: '#ababab',
-                        }}
-                      />
-                      <TouchableOpacity
-                        onPress={handleApplyCoupon}
-                        style={{
-                          width: 70,
-                          height: '65%',
-                          backgroundColor: '#007AFF',
-                        }}>
-                        <View
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}>
-                          <Text style={{ color: 'white', textAlign: 'center' }}>
-                            Apply
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-
-                <View
-                  style={{
-                    alignItems: 'center',
-                    width: '100%',
-                    height: 280,
-                    // backgroundColor: 'red',
-                    justifyContent: 'flex-start',
-                    flexDirection: 'column',
-                  }}>
-                  <View
-                    style={{
-                      width: '90%',
-                      height: '100%',
-                      backgroundColor: 'white',
-                      // justifyContent:'space-around',
-                      flexDirection: 'column',
-
-                      borderRadius: 8,
-                    }}>
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        // backgroundColor: 'yellow',
-                        justifyContent: 'center',
-                        borderBottomWidth: 0.3,
-                        borderBlockColor: '#e3e3e3',
-                      }}>
-                      <Text style={{ marginLeft: '5%' }}>Checkout</Text>
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        //  backgroundColor: 'green',
-                        justifyContent: 'space-between',
-                        borderBottomWidth: 0.3,
-                        borderBlockColor: '#e3e3e3',
-                        paddingRight: 13,
-                        paddingLeft: 13,
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                      }}>
-                      <Text style={{ fontSize: 15, color: 'black' }}>
-                        Your cart subtotal :
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'green',
-                          fontWeight: '400',
-                        }}>
-                        {subtotal}
-                        {/* show the sub_total from api */}
-
-
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        //  backgroundColor: 'green',
-                        justifyContent: 'space-between',
-                        borderBottomWidth: 0.3,
-                        borderBlockColor: '#e3e3e3',
-                        paddingRight: 13,
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        paddingLeft: 13,
-                      }}>
-                      <Text style={{ fontSize: 15, color: 'black' }}>
-                        Discount coupons :{' '}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'green',
-                          fontWeight: '400',
-                        }}>
-                        {discountPrice}
-                        {/* show the discount_amount from api */}
-
-
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        //  backgroundColor: 'green',
-                        paddingRight: 13,
-                        paddingLeft: 13,
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        borderBottomWidth: 0.3,
-                        borderBlockColor: '#e3e3e3',
-                      }}>
-                      <Text style={{ fontSize: 15, color: 'black' }}>
-                        Shipping Charge :
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'green',
-                          fontWeight: '400',
-                        }}>
-                        Free
-                      </Text>
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        //  backgroundColor: 'green',
-                        marginTop: 10,
-                        justifyContent: 'space-between',
-                        borderBottomWidth: 0.3,
-                        borderBlockColor: '#e3e3e3',
-                        paddingRight: 13,
-                        paddingLeft: 16,
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                      }}>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: '600',
-                          color: 'black',
-                        }}>
-                        Total :
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 20,
-                          color: 'green',
-                          fontWeight: '600',
-                        }}>
-                        {total}
-                        {/* show the total from api */}
-                      </Text>
-                    </View>
-
-                    <View
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        // backgroundColor: 'red',
-                        marginTop: '3%',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <TouchableOpacity
-                        onPress={() => navigation.navigate('ShippingAddress')}>
-                        {/* <TouchableOpacity onPress={onPressOpenRBSheet}> */}
-                        <View
-                          style={{
-                            width: 120,
-                            height: 40,
-                            borderRadius: 4,
-                            backgroundColor: '#007AFF',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}>
-                          <Text style={{ color: 'white', fontSize: 15 }}>
-                            Check Out
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              </>
-            ) : (
-              <View
-                style={{
-                  width: '100%',
-                  height: 700,
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Image
-                  style={{ marginTop: '-30%', width: 200, height: 200 }}
-                  source={require('../Assets/Normal-IMG/empty-cart.png')}
-                />
-                <Text
-                  style={{ fontSize: 30, fontStyle: 'italic', color: 'black' }}>
-                  Cart Is Empty
-                </Text>
-              </View>
-            )}
-
+    <ScrollView>
+      <View style={{backgroundColor: '#F7F7F7'}}>
+        <View
+          style={{
+            width: '100%',
+            height: 60,
+            // backgroundColor: 'white',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            paddingLeft: 20,
+            paddingRight: 20,
+          }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Index')}>
             <View
               style={{
-                height: 160,
-                backgroundColor: 'red',
-                marginTop: '10%',
+                width: 40,
+                borderRadius: 6,
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: 40,
+                backgroundColor: '#ffffff',
               }}>
-              <Footer />
+              <Image
+                style={{width: 20, height: 20}}
+                source={require('../Assets/Normal-IMG/left-arrow.png')}
+              />
             </View>
-          </ScrollView>
-        </>
-      )}
-    </View>
+          </TouchableOpacity>
+
+          <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
+            Shipping Address
+          </Text>
+
+          <View
+            style={{
+              width: 40,
+            }}></View>
+        </View>
+
+        <View style={{padding: 10}}>
+          <View style={{marginVertical: 10}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+              Full name (First and Last name)
+            </Text>
+            <TextInput
+              value={name}
+              onChangeText={text => setName(text)}
+              placeholder="Enter your name"
+              placeholderTextColor={'black'}
+              style={{
+                padding: 10,
+                borderColor: '#D0D0D0',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+              Mobile number
+            </Text>
+            <TextInput
+              value={mobileNo}
+              onChangeText={text => setMobileNo(text)}
+              placeholder="Mobile No"
+              placeholderTextColor={'black'}
+              style={{
+                padding: 10,
+                borderColor: '#D0D0D0',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>Your Address</Text>
+            <TextInput
+              value={houseNo}
+              onChangeText={text => setHouseNo(text)}
+              style={{
+                padding: 10,
+                borderColor: '#D0D0D0',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+              Area,Street,City
+            </Text>
+            <TextInput
+              value={street}
+              onChangeText={text => setStreet(text)}
+              style={{
+                padding: 10,
+                borderColor: '#D0D0D0',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>Pincode</Text>
+            <TextInput
+              value={postalCode}
+              onChangeText={text => setPostalCode(text)}
+              placeholder="Enter Pincode"
+              placeholderTextColor={'black'}
+              style={{
+                padding: 10,
+                borderColor: '#D0D0D0',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <SelectDropdown
+              defaultButtonText="Province"
+              data={provinceOptions}
+              onSelect={selectedItem => setProvince(selectedItem)}
+              buttonStyle={{
+                borderColor: '#D0D0D0',
+                backgroundColor: '#f7f7f7',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+                padding: 10,
+                width: '100%',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <SelectDropdown
+              defaultButtonText="Your country"
+              data={countryOptions}
+              onSelect={selectedItem => setCountry(selectedItem)}
+              buttonStyle={{
+                borderColor: '#D0D0D0',
+                backgroundColor: '#f7f7f7',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+                padding: 10,
+                width: '100%',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+            />
+          </View>
+
+          <TouchableOpacity
+            onPress={addAddress}
+            style={{
+              padding: 19,
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: 20,
+              backgroundColor: '#007AFF',
+            }}>
+            <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
+              Continue
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
 
-export default Cart;
+export default Demo;
 
 const styles = StyleSheet.create({});

@@ -31,6 +31,14 @@ const ShippingAddress = () => {
   const [postalCode, setPostalCode] = useState('');
 
   const addAddress = async () => {
+    console.log('Country:', country);
+    console.log('Name:', name);
+    console.log('Mobile No:', mobileNo);
+    console.log('House No:', houseNo);
+    console.log('Street:', street);
+    console.log('Province:', province);
+    console.log('Postal Code:', postalCode);
+
     if (
       !country ||
       !name ||
@@ -91,6 +99,32 @@ const ShippingAddress = () => {
     }
   };
 
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [provinceOptions, setProvinceOptions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          'http://192.168.1.40:3000/api/shippingaddress',
+        );
+        const data = await response.json();
+        const uniqueCountries = [
+          ...new Set(data.data.map(item => item.country)),
+        ];
+        setCountryOptions(uniqueCountries);
+        const uniqueProvinces = [
+          ...new Set(data.data.map(item => item.province)),
+        ];
+        setProvinceOptions(uniqueProvinces);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <ScrollView>
       <View style={{backgroundColor: '#F7F7F7'}}>
@@ -133,20 +167,6 @@ const ShippingAddress = () => {
         </View>
 
         <View style={{padding: 10}}>
-          {/* <TextInput
-            placeholder="Country"
-            value={country}
-            onChangeText={text => setCountry(text)}
-            placeholderTextColor={'black'}
-            style={{
-              padding: 10,
-              borderColor: '#D0D0D0',
-              borderWidth: 1,
-              marginTop: 10,
-              borderRadius: 5,
-            }}
-          /> */}
-
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
               Full name (First and Last name)
@@ -218,23 +238,6 @@ const ShippingAddress = () => {
           </View>
 
           <View style={{marginVertical: 10}}>
-            <Text style={{fontSize: 15, fontWeight: 'bold'}}>province</Text>
-            <TextInput
-              // value={province}
-              // onChangeText={text => setProvince(text)}
-              placeholder="province"
-              placeholderTextColor={'black'}
-              style={{
-                padding: 10,
-                borderColor: '#D0D0D0',
-                borderWidth: 1,
-                marginTop: 10,
-                borderRadius: 5,
-              }}
-            />
-          </View>
-
-          <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>Pincode</Text>
             <TextInput
               value={postalCode}
@@ -251,33 +254,30 @@ const ShippingAddress = () => {
             />
           </View>
 
-          <View>
+          <View style={{marginVertical: 10}}>
             <SelectDropdown
-              data={[
-                {value: 'US', label: 'United States'},
-                {value: 'IN', label: 'India'},
-              ]}
-              onSelect={(selectedItem, index) => {
-                setCountry(selectedItem.value);
-                console.log('country:', selectedItem.value);
+              defaultButtonText="Province"
+              data={provinceOptions}
+              onSelect={selectedItem => setProvince(selectedItem)}
+              buttonStyle={{
+                borderColor: '#D0D0D0',
+                backgroundColor: '#f7f7f7',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+                padding: 10,
+                width: '100%',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
               }}
-              defaultButtonText="Select Your Country"
-              defaultButtonTextStyle={{fontSize: 15}}
-              buttonTextAfterSelection={(selectedItem, index) => (
-                <Text
-                  style={{
-                    color: 'black',
-                    textAlign: 'left',
-                    fontSize: 15,
-                    width: '100%',
-                  }}>
-                  {selectedItem.label}
-                </Text>
-              )}
-              rowTextForSelection={(item, index) => item.label}
-              dropdownIconPosition="right"
-              dropdownStyle={{borderRadius: 5}}
-              rowTextStyle={{paddingVertical: 12}}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
+            <SelectDropdown
+              defaultButtonText="Your country"
+              data={countryOptions}
+              onSelect={selectedItem => setCountry(selectedItem)}
               buttonStyle={{
                 borderColor: '#D0D0D0',
                 backgroundColor: '#f7f7f7',
@@ -302,7 +302,7 @@ const ShippingAddress = () => {
               backgroundColor: '#007AFF',
             }}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
-              Continue to Payment
+              Continue
             </Text>
           </TouchableOpacity>
         </View>

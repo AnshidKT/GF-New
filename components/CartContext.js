@@ -9,6 +9,7 @@ import axios from 'axios';
 import {useBaseUrl} from './BaseUrlContext';
 import {showMessage} from 'react-native-flash-message';
 import {useFocusEffect} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CartContext = createContext();
 
@@ -27,12 +28,20 @@ export const CartProvider = ({children}) => {
   const [total, setTotal] = useState(0);
   const [discountPrice, setDiscountPrice] = useState(0);
 
-  const fetchCartData = async () => {
+   const fetchCartData = async () => {
     try {
-      const response = await axios.get(
-        `${baseUrl}/api/cart/getcarts?sid=LOhkeQiWzWmfqgP3qCD98C9v-pD4Pnrc`,
-      );
+      const token = await AsyncStorage.getItem('authToken');
+      console.log('AsyncStorage token:', token);
+
+      const response = await axios.get(`${baseUrl}/api/cart/getcarts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       const responseData = response.data;
+
+      console.log(responseData);
 
       setCartData(responseData.activeCartItems);
       setActiveCartUuid(responseData.activeCart.uuid);
@@ -61,9 +70,15 @@ export const CartProvider = ({children}) => {
     fetchCartData();
   }, []);
 
+
+
+
+
+
+
   useEffect(() => {
     if (activeCartUuid) {
-      console.log('activeCartUuid:', activeCartUuid);
+      // console.log('activeCartUuid:', activeCartUuid);
     }
   }, [activeCartUuid]);
 
@@ -149,6 +164,7 @@ export const CartProvider = ({children}) => {
         subtotal,
         discountPrice,
         total,
+        fetchCartData,
       }}>
       {children}
     </CartContext.Provider>

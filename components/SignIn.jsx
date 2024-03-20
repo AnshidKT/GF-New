@@ -12,6 +12,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {useBaseUrl} from './BaseUrlContext';
+import {useCart} from './CartContext';
 const SignIn = ({navigation}) => {
   const {baseUrl} = useBaseUrl();
 
@@ -42,12 +43,24 @@ const SignIn = ({navigation}) => {
     const apiEndpoint = isLogin ? 'login' : 'signup';
 
     axios
-      // .post(`http:192.168.1.38:3000/${apiEndpoint}`, user)
       .post(`${baseUrl}/customer/login`, user)
       .then(response => {
-        console.log(response);
-        const token = response.data.token;
-        AsyncStorage.setItem('authToken', token);
+        console.log('Login response:', response);
+        const token = response.data.data.token;
+        console.log('Received token:', token);
+        AsyncStorage.setItem('authToken', token).then(response => {
+          console.log('Login response:', response); // Log the entire response
+          const responseData = response.data; // Get the data object directly
+          const token = responseData.token; // Access the token directly
+          console.log('Received token:', token); // Log the token received
+          if (token) {
+            AsyncStorage.setItem('authToken', token)
+              .then(() => console.log('Token stored successfully'))
+              .catch(error => console.error('Error storing token:', error));
+          } else {
+            console.error('Token not found in response');
+          }
+        });
         navigation.navigate('Index');
       })
       .catch(error => {
@@ -60,6 +73,7 @@ const SignIn = ({navigation}) => {
         setLoading(false);
       });
   };
+
   return (
     <View>
       <View style={{width: '100%', height: '100%', backgroundColor: '#e6e6e6'}}>

@@ -29,11 +29,11 @@ const Cart = ({navigation}) => {
     handleRemoveItem(uuid);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchCartData();
-    }, [cartData]),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchCartData(); 
+  //   }, [cartData]),
+  // );
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>
@@ -239,13 +239,13 @@ const Cart = ({navigation}) => {
                             justifyContent: 'space-between',
                             alignItems: 'center',
                           }}>
-                          {/* <Image
+                          <Image
                             style={{width: 25, marginRight: 10, height: 25}}
                             source={require('../Assets/Normal-IMG/discount.png')}
                           />
                           <Text style={{color: 'green', fontWeight: 'bold'}}>
                             Coupon applied successfully!
-                          </Text> */}
+                          </Text>
                         </View>
                       )}
                     </View>

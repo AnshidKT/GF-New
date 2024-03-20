@@ -29,17 +29,20 @@ const App = () => {
   return (
     <NavigationContainer>
       <UserContext>
-          <BaseUrlProvider>
-        <CartProvider>
+        <BaseUrlProvider>
+          <CartProvider>
             <Stack.Navigator
               screenOptions={{headerShown: false}}
-              initialRouteName="Index">
+              initialRouteName="SignIn">
               <Stack.Screen name="AuthCheck" component={AuthCheckScreen} />
               <Stack.Screen name="Intro" component={Intro} />
               <Stack.Screen name="SignIn" component={SignIn} />
               <Stack.Screen name="SignUp" component={SignUp} />
               <Stack.Screen name="Index" component={Index} />
-              <Stack.Screen name="ShippingAddress" component={ShippingAddress} />
+              <Stack.Screen
+                name="ShippingAddress"
+                component={ShippingAddress}
+              />
               <Stack.Screen name="BillingAddress" component={BillingAddress} />
               <Stack.Screen name="ProductDetails" component={ProductDetails} />
               <Stack.Screen name="Payment" component={Payment} />
@@ -55,8 +58,8 @@ const App = () => {
                 component={MyOrdersDetailes}
               />
             </Stack.Navigator>
-        </CartProvider>
-          </BaseUrlProvider>
+          </CartProvider>
+        </BaseUrlProvider>
       </UserContext>
     </NavigationContainer>
   );
