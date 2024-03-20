@@ -41,7 +41,7 @@ export const CartProvider = ({children}) => {
 
       const responseData = response.data;
 
-      console.log(responseData);
+      // console.log(responseData);
 
       setCartData(responseData.activeCartItems);
       setActiveCartUuid(responseData.activeCart.uuid);
@@ -78,7 +78,7 @@ export const CartProvider = ({children}) => {
 
   useEffect(() => {
     if (activeCartUuid) {
-      // console.log('activeCartUuid:', activeCartUuid);
+      console.log('activeCartUuid:', activeCartUuid);
     }
   }, [activeCartUuid]);
 

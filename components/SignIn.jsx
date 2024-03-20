@@ -49,10 +49,10 @@ const SignIn = ({navigation}) => {
         const token = response.data.data.token;
         console.log('Received token:', token);
         AsyncStorage.setItem('authToken', token).then(response => {
-          console.log('Login response:', response); // Log the entire response
-          const responseData = response.data; // Get the data object directly
-          const token = responseData.token; // Access the token directly
-          console.log('Received token:', token); // Log the token received
+          console.log('Login response:', response);
+          const responseData = response.data; 
+          const token = responseData.token; 
+          console.log('Received token:', token); 
           if (token) {
             AsyncStorage.setItem('authToken', token)
               .then(() => console.log('Token stored successfully'))

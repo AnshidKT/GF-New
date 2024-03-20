@@ -106,7 +106,7 @@ const ShippingAddress = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'http://192.168.1.40:3000/api/shippingaddress',
+          `${baseUrl}/api/shippingaddress`,
         );
         const data = await response.json();
         const uniqueCountries = [
