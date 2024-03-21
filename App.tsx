@@ -33,7 +33,7 @@ const App = () => {
           <CartProvider>
             <Stack.Navigator
               screenOptions={{headerShown: false}}
-              initialRouteName="SignIn">
+              initialRouteName="Demoo">
               <Stack.Screen name="AuthCheck" component={AuthCheckScreen} />
               <Stack.Screen name="Intro" component={Intro} />
               <Stack.Screen name="SignIn" component={SignIn} />

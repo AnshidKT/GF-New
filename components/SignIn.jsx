@@ -47,9 +47,9 @@ const SignIn = ({navigation}) => {
       .then(response => {
         console.log('Login response:', response);
         const token = response.data.data.token;
-        console.log('Received token:', token);
+        // console.log('Received token:', token);
         AsyncStorage.setItem('authToken', token).then(response => {
-          console.log('Login response:', response);
+          // console.log('Login response:', response);
           const responseData = response.data; 
           const token = responseData.token; 
           console.log('Received token:', token); 

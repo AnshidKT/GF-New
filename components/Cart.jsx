@@ -29,11 +29,11 @@ const Cart = ({navigation}) => {
     handleRemoveItem(uuid);
   };
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     fetchCartData(); 
-  //   }, [cartData]),
-  // );
+  useFocusEffect(
+    useCallback(() => {
+      fetchCartData(); 
+    }, [cartData]),
+  );
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>

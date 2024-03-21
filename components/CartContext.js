@@ -31,7 +31,7 @@ export const CartProvider = ({children}) => {
    const fetchCartData = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      console.log('AsyncStorage token:', token);
+      // console.log('AsyncStorage token:', token);
 
       const response = await axios.get(`${baseUrl}/api/cart/getcarts`, {
         headers: {
