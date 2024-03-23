@@ -28,10 +28,49 @@ const BillingAddress = () => {
   const [street, setStreet] = useState('');
   const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
+
+
+
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/api/shippingaddress`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch countries');
+      }
+      const data = await response.json();
+      const countryData = data.data.map(country => ({
+        value: country.code,
+        label: country.name
+      }));
+      setCountry(countryData);
+      console.log(country);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const addAddress = async () => {
     if (
-      !country ||
+      !selectedCountry ||
       !name ||
       !mobileNo ||
       !houseNo ||
@@ -56,7 +95,7 @@ const BillingAddress = () => {
             address: {
               address_1: houseNo + ', ' + province,
               city: street,
-              country: country,
+              country: selectedCountry,
               postal_code: postalCode,
               full_name: name,
               telephone: mobileNo,
@@ -88,6 +127,13 @@ const BillingAddress = () => {
       console.log('Error', error.message);
     }
   };
+
+
+
+
+
+
+  
   return (
     <ScrollView>
       <View style={{backgroundColor: '#F7F7F7'}}>
@@ -249,15 +295,12 @@ const BillingAddress = () => {
           </View>
 
           <View>
-            <SelectDropdown
-              data={[
-                {value: 'US', label: 'United States'},
-                {value: 'IN', label: 'India'},
-              ]}
-              onSelect={(selectedItem, index) => {
-                setCountry(selectedItem.value);
-                console.log('country:', selectedItem.value);
-              }}
+          <SelectDropdown
+            data={country}
+            onSelect={(selectedItem, index) => {
+              setSelectedCountry(selectedItem.value);
+              console.log('Selected country:', selectedItem.value);
+            }}
               defaultButtonText="Select Your Country"
               defaultButtonTextStyle={{fontSize: 15}}
               buttonTextAfterSelection={(selectedItem, index) => (

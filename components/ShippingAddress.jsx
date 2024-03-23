@@ -27,7 +27,7 @@ const ShippingAddress = () => {
   const [mobileNo, setMobileNo] = useState('');
   const [houseNo, setHouseNo] = useState('');
   const [street, setStreet] = useState('');
-  const [province, setProvince] = useState('US-KY');
+  const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
 
   const addAddress = async () => {
@@ -49,6 +49,10 @@ const ShippingAddress = () => {
       !postalCode
     ) {
       Alert.alert('Info', 'Please fill in all the fields');
+      return;
+    }
+    if (selectedShippingMethod === null) {
+      Alert.alert('Info', 'Please select a shipping method');
       return;
     }
 
@@ -101,22 +105,20 @@ const ShippingAddress = () => {
 
   const [countryOptions, setCountryOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
+  const [filteredProvinces, setFilteredProvinces] = useState([]);
+  const [shippingData, setShippingData] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${baseUrl}/api/shippingaddress`,
-        );
+        const response = await fetch(`${baseUrl}/api/shippingaddress`);
         const data = await response.json();
-        const uniqueCountries = [
-          ...new Set(data.data.map(item => item.country)),
-        ];
-        setCountryOptions(uniqueCountries);
-        const uniqueProvinces = [
-          ...new Set(data.data.map(item => item.province)),
-        ];
-        setProvinceOptions(uniqueProvinces);
+        setShippingData(data);
+
+        const countries =
+          data?.data?.map(item => ({code: item.code, name: item.name})) || [];
+        setCountryOptions(countries);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -124,6 +126,109 @@ const ShippingAddress = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (shippingData && country) {
+      const countryData = shippingData.data.find(
+        countryItem => countryItem.code === country,
+      );
+      if (countryData) {
+        const provinces = countryData.provinces.map(province => ({
+          code: province.code,
+          name: province.name,
+        }));
+        setProvinceOptions(provinces);
+      }
+    }
+  }, [shippingData, country]);
+
+  const handleCountrySelect = (selectedItem, index) => {
+    const selectedCountryCode = countryOptions[index].code;
+    setCountry(selectedCountryCode);
+    console.log('Selected Country Code:', selectedCountryCode);
+  };
+
+  const handleProvinceSelect = (selectedItem, index) => {
+    const selectedProvinceCode = provinceOptions[index].code;
+    setProvince(selectedProvinceCode);
+    console.log('Selected Province Code:', selectedProvinceCode);
+  };
+
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
+
+  const [shippingMethods, setShippingMethods] = useState([]);
+  useEffect(() => {
+    const fetchShippingMethods = async () => {
+      try {
+        if (!country || !province) {
+          return;
+        }
+
+        console.log(
+          'Fetching shipping methods for country:',
+          country,
+          'and province:',
+          province,
+        );
+
+        const response = await fetch(
+          `${baseUrl}/api/shippingMethods/${activeCartUuid}?country=${country}&province=${province}`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch shipping methods');
+        }
+
+        const responseData = await response.json();
+        console.log('Response from shipping methods API:', responseData);
+
+        const methods = responseData?.data?.methods || [];
+
+        setShippingMethods(methods);
+
+        console.log('Shipping methods:', methods);
+      } catch (error) {
+        console.error('Error fetching shipping methods:', error);
+      }
+    };
+
+    fetchShippingMethods();
+  }, [country, province]);
+
+  const handleSelectedShippingMethod = async index => {
+    setSelectedShippingMethod(index);
+    try {
+      const selectedMethod = shippingMethods[index];
+      if (!selectedMethod) {
+        console.error('Selected shipping method not found');
+        return;
+      }
+
+      const methodCode = selectedMethod.code;
+
+      const response = await fetch(
+        `${baseUrl}/api/carts/${activeCartUuid}/shippingMethods`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            method_code: methodCode,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to post shipping method');
+      }
+
+      console.log('Shipping method posted successfully');
+    } catch (error) {
+      console.error('Error posting shipping method:', error);
+      Alert.alert('Error', error.message);
+    }
+  };
 
   return (
     <ScrollView>
@@ -256,9 +361,9 @@ const ShippingAddress = () => {
 
           <View style={{marginVertical: 10}}>
             <SelectDropdown
-              defaultButtonText="Province"
-              data={provinceOptions}
-              onSelect={selectedItem => setProvince(selectedItem)}
+              defaultButtonText="Your country"
+              data={countryOptions.map(country => country.name)}
+              onSelect={handleCountrySelect}
               buttonStyle={{
                 borderColor: '#D0D0D0',
                 backgroundColor: '#f7f7f7',
@@ -275,9 +380,9 @@ const ShippingAddress = () => {
 
           <View style={{marginVertical: 10}}>
             <SelectDropdown
-              defaultButtonText="Your country"
-              data={countryOptions}
-              onSelect={selectedItem => setCountry(selectedItem)}
+              defaultButtonText="Province"
+              data={provinceOptions.map(province => province.name)}
+              onSelect={handleProvinceSelect}
               buttonStyle={{
                 borderColor: '#D0D0D0',
                 backgroundColor: '#f7f7f7',
@@ -291,6 +396,64 @@ const ShippingAddress = () => {
               }}
             />
           </View>
+
+          {shippingMethods.map((method, index) => (
+            <View
+              key={index}
+              style={{
+                width: '93%',
+                height: 60,
+                backgroundColor: 'white',
+                elevation: 3,
+                borderColor: 'gray',
+                borderRadius: 8,
+                justifyContent: 'center',
+                padding: 8,
+                margin: 10,
+              }}>
+              <TouchableOpacity
+                style={{flexDirection: 'row'}}
+                onPress={() => handleSelectedShippingMethod(index)}>
+                <View
+                  style={{
+                    width: 25,
+                    height: 25,
+                    backgroundColor: 'white',
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: 2,
+                  }}>
+                  {selectedShippingMethod === index && (
+                    <Image
+                      style={{width: 50, height: 50}}
+                      source={require('../Assets/Normal-IMG/payment-tick.png')}
+                    />
+                  )}
+                </View>
+
+                <Text
+                  style={{
+                    color: 'black',
+                    fontSize: 16,
+                    margin: 5,
+                    fontWeight: '600',
+                  }}>
+                  {method.name}
+                </Text>
+                <Text
+                  style={{
+                    color: 'green',
+                    fontSize: 16,
+                    margin: 5,
+                    fontWeight: '600',
+                  }}>
+                  {method.cost}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ))}
 
           <TouchableOpacity
             onPress={addAddress}

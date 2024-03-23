@@ -6,18 +6,26 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {TouchableOpacity} from 'react-native';
-import {UserType} from './UserContext';
-import axios from 'axios';
-
-import DocumentPicker from 'react-native-document-picker';
-import ImagePicker from 'react-native-image-picker';
-import {useCart} from './CartContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = ({navigation, profileToggleMenu}) => {
-  // const {name, email} = route.params;
-  // console.log(name, email);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    retrieveUserName();
+  }, []);
+  const retrieveUserName = async () => {
+    try {
+      const name = await AsyncStorage.getItem('customerName');
+      if (name !== null) {
+        setUserName(name);
+      }
+    } catch (error) {
+      console.error('Error retrieving name:', error);
+    }
+  };
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%'}}>
@@ -173,7 +181,7 @@ const Profile = ({navigation, profileToggleMenu}) => {
                   borderRadius: 10,
                 }}>
                 <Text style={{fontSize: 22, color: 'black'}}>
-                  {/* Username {name} */}
+                  {userName ? userName : 'Username'}
                 </Text>
                 <Text style={{fontSize: 13, color: 'black'}}>
                   {/* useremail {email} */}
@@ -247,7 +255,7 @@ const Profile = ({navigation, profileToggleMenu}) => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-        //onPress={() => navigation.navigate('MyOrders')}
+        onPress={() => navigation.navigate('MyOrders')}
         >
           <View
             style={{

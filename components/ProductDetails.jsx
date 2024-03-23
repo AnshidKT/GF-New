@@ -78,7 +78,7 @@ const ProductDetails = ({navigation}) => {
           qty: quantity,
           variant_options: selectedSize,
         };
-        console.log(userItem);
+        // console.log(userItem);
         const response = await fetch(
           `${baseUrl}/api/cart/${activeCartUuid}/items`,
           {
@@ -92,7 +92,7 @@ const ProductDetails = ({navigation}) => {
 
         if (response.ok) {
           const data = await response.json();
-          console.log('Item added successfully to cart:', data);
+          // console.log('Item added successfully to cart:', data);
           showAddedToCart();
         } else {
           console.error(

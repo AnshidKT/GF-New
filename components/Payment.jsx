@@ -13,7 +13,7 @@ import {ScrollView} from 'react-native';
 import {useCart} from './CartContext';
 
 const Payment = ({navigation, route}) => {
-  const {total} = useCart();
+  const {total, discountPrice, subtotal, activeCartUuid} = useCart();
 
   const [loading, setLoading] = useState(false);
   const [selectedPaymentIndex, setSelectedPaymentIndex] = useState();
@@ -60,6 +60,72 @@ const Payment = ({navigation, route}) => {
       } else {
         setPaypalInputVisible(false);
       }
+
+      const postData = {
+        method_code: selectedMethod.code,
+        method_name: selectedMethod.name,
+      };
+
+      fetch(`${baseUrl}/api/carts/${activeCartUuid}/paymentMethods`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to post payment method');
+          }
+          console.log('Payment method posted successfully');
+          console.log('Name:', selectedMethod.name);
+          console.log('Code:', selectedMethod.code);
+        })
+        .catch(error => {
+          console.error('Error posting payment method: ', error);
+        });
+    }
+  };
+
+  const placeOrder = async () => {
+    if (selectedPaymentIndex === undefined) {
+      Alert.alert('info', 'Please select a payment method');
+      return;
+    }
+
+    try {
+      const postData = {
+        cart_id: activeCartUuid,
+      };
+
+      const response = await fetch(`${baseUrl}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to place order');
+      }
+
+      const responseData = await response.json();
+      console.log('Order placed successfully:', responseData);
+      Alert.alert(
+        'Ordered',
+        'Order placed successfully',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('Index'),
+          },
+        ],
+        {cancelable: false},
+      );
+    } catch (error) {
+      console.error('Error placing order:', error);
+      Alert.alert('Error', 'Failed to place order. Please try again.');
     }
   };
 
@@ -138,55 +204,71 @@ const Payment = ({navigation, route}) => {
                 }}>
                 Order Details
               </Text>
-              <View style={{padding: 10}}>
-                <Text style={{color: 'gray', marginBottom: 2}}>
-                  Contact {'        '}: {'  '}
-                </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 10,
+                  paddingRight: 10,
+                  paddingLeft: 10,
+                }}>
+                <Text style={{margin: 5, fontSize: 16}}>Net Total :</Text>
 
-                <View
+                <Text
                   style={{
-                    width: '99%',
-                    marginTop: 8,
-                    height: '65%',
-                    flexDirection: 'row',
+                    margin: 5,
+                    fontSize: 18,
+                    fontWeight: '500',
+                    color: 'green',
                   }}>
-                  <View
-                    style={{
-                      width: '30%',
-                      height: '100%',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                    }}>
-                    <Text style={{fontWeight: '400', color: 'gray'}}>
-                      Delivery to {'    '}:{' '}
-                    </Text>
-                    <Text style={{fontWeight: '400', color: 'gray'}}>
-                      Total amount :
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      width: '75%',
-                      height: '100%',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      paddingLeft: 6,
-                    }}>
-                    <Text style={{fontWeight: '400', color: 'gray'}}></Text>
-                    <Text style={{fontWeight: '400', color: 'gray'}}></Text>
+                  QR {subtotal}
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 10,
+                  paddingRight: 10,
+                  paddingLeft: 10,
+                }}>
+                <Text style={{margin: 5, fontSize: 16}}>Discount Coupon :</Text>
 
-                    <Text
-                      style={{
-                        fontWeight: '500',
-                        fontSize: 16,
-                        marginBottom: '-1%',
-                        color: 'green',
-                      }}>
-                      
-                     QR {total}
-                    </Text>
-                  </View>
-                </View>
+                <Text
+                  style={{
+                    margin: 5,
+                    fontSize: 18,
+                    fontWeight: '500',
+                    color: 'green',
+                  }}>
+                  QR {discountPrice}
+                </Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginTop: 10,
+                  paddingRight: 10,
+                  paddingLeft: 10,
+                }}>
+                <Text style={{margin: 5, fontSize: 16}}>Grand Total :</Text>
+
+                <Text
+                  style={{
+                    margin: 5,
+                    fontSize: 18,
+                    fontWeight: '500',
+                    color: 'green',
+                  }}>
+                  QR {total}
+                </Text>
               </View>
             </View>
           </View>
@@ -316,7 +398,7 @@ const Payment = ({navigation, route}) => {
               justifyContent: 'flex-end',
             }}>
             <TouchableOpacity
-              onPress={handleConfirmOrder}
+              onPress={placeOrder}
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -327,7 +409,7 @@ const Payment = ({navigation, route}) => {
                 backgroundColor: '#007AFF',
               }}>
               <Text style={{color: 'white', fontSize: 18, fontWeight: '600'}}>
-                Confirm & Ordered
+                Place Order
               </Text>
             </TouchableOpacity>
           </View>

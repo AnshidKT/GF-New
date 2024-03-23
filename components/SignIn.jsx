@@ -44,22 +44,14 @@ const SignIn = ({navigation}) => {
 
     axios
       .post(`${baseUrl}/customer/login`, user)
-      .then(response => {
-        console.log('Login response:', response);
+     .then(response => {
         const token = response.data.data.token;
-        // console.log('Received token:', token);
-        AsyncStorage.setItem('authToken', token).then(response => {
-          // console.log('Login response:', response);
-          const responseData = response.data; 
-          const token = responseData.token; 
-          console.log('Received token:', token); 
-          if (token) {
-            AsyncStorage.setItem('authToken', token)
-              .then(() => console.log('Token stored successfully'))
-              .catch(error => console.error('Error storing token:', error));
-          } else {
-            console.error('Token not found in response');
-          }
+      //  console.log(token);
+        const customerName = response.data.data.customer_name;
+        AsyncStorage.setItem('authToken', token).then(() => {
+          AsyncStorage.setItem('customerName', customerName)
+            //.then(() => console.log('Name stored successfully'))
+            //.catch(error => console.error('Error storing name:', error));
         });
         navigation.navigate('Index');
       })
@@ -99,7 +91,15 @@ const SignIn = ({navigation}) => {
           <Text style={{fontSize: 22, color: 'black', fontWeight: '600'}}>
             Sign In
           </Text>
-
+          {/* <View
+            style={{
+              marginLeft: 10,
+              width: 40,
+              borderRadius: 6,
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 40,
+            }}></View> */}
           <TouchableOpacity onPress={() => navigation.navigate('Index')}>
             <View
               style={{

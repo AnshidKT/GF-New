@@ -14,8 +14,7 @@ import {useBaseUrl} from './BaseUrlContext';
 
 import SelectDropdown from 'react-native-select-dropdown';
 import {useCart} from './CartContext';
-
-const Demo = () => {
+const BillingAddress = () => {
   const {baseUrl} = useBaseUrl();
   const {activeCartUuid} = useCart();
 
@@ -27,20 +26,51 @@ const Demo = () => {
   const [mobileNo, setMobileNo] = useState('');
   const [houseNo, setHouseNo] = useState('');
   const [street, setStreet] = useState('');
-  const [province, setProvince] = useState('US-KY');
+  const [province, setProvince] = useState('');
   const [postalCode, setPostalCode] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
+
+
+
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/api/shippingaddress`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch countries');
+      }
+      const data = await response.json();
+      const countryData = data.data.map(country => ({
+        value: country.code,
+        label: country.name
+      }));
+      setCountry(countryData);
+      console.log(country);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const addAddress = async () => {
-    console.log('Country:', country);
-    console.log('Name:', name);
-    console.log('Mobile No:', mobileNo);
-    console.log('House No:', houseNo);
-    console.log('Street:', street);
-    console.log('Province:', province);
-    console.log('Postal Code:', postalCode);
-
     if (
-      !country ||
+      !selectedCountry ||
       !name ||
       !mobileNo ||
       !houseNo ||
@@ -63,16 +93,15 @@ const Demo = () => {
           },
           body: JSON.stringify({
             address: {
-              address_1: houseNo,
+              address_1: houseNo + ', ' + province,
               city: street,
-              country: country,
-
+              country: selectedCountry,
+              postal_code: postalCode,
               full_name: name,
               telephone: mobileNo,
-              province: province,
               postcode: postalCode,
             },
-            type: 'shipping',
+            type: 'billing',
           }),
         },
       );
@@ -82,11 +111,11 @@ const Demo = () => {
       }
       Alert.alert(
         'Success',
-        'Address added successfully',
+        'Billing Address added successfully',
         [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('BillingAddress'),
+            onPress: () => navigation.navigate('Payment'),
           },
         ],
         {cancelable: false},
@@ -99,32 +128,12 @@ const Demo = () => {
     }
   };
 
-  const [countryOptions, setCountryOptions] = useState([]);
-  const [provinceOptions, setProvinceOptions] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          'http://192.168.1.40:3000/api/shippingaddress',
-        );
-        const data = await response.json();
-        const uniqueCountries = [
-          ...new Set(data.data.map(item => item.country)),
-        ];
-        setCountryOptions(uniqueCountries);
-        const uniqueProvinces = [
-          ...new Set(data.data.map(item => item.province)),
-        ];
-        setProvinceOptions(uniqueProvinces);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
 
-    fetchData();
-  }, []);
 
+
+
+  
   return (
     <ScrollView>
       <View style={{backgroundColor: '#F7F7F7'}}>
@@ -139,7 +148,7 @@ const Demo = () => {
             paddingLeft: 20,
             paddingRight: 20,
           }}>
-          <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+          <TouchableOpacity onPress={() => navigation.navigate('ShippingAddress')}>
             <View
               style={{
                 width: 40,
@@ -157,7 +166,7 @@ const Demo = () => {
           </TouchableOpacity>
 
           <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
-            Shipping Address
+            Billing Address
           </Text>
 
           <View
@@ -167,6 +176,20 @@ const Demo = () => {
         </View>
 
         <View style={{padding: 10}}>
+          {/* <TextInput
+          placeholder="Country"
+          value={country}
+          onChangeText={text => setCountry(text)}
+          placeholderTextColor={'black'}
+          style={{
+            padding: 10,
+            borderColor: '#D0D0D0',
+            borderWidth: 1,
+            marginTop: 10,
+            borderRadius: 5,
+          }}
+        /> */}
+
           <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>
               Full name (First and Last name)
@@ -238,6 +261,23 @@ const Demo = () => {
           </View>
 
           <View style={{marginVertical: 10}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold'}}>Province</Text>
+            <TextInput
+              value={province}
+              onChangeText={text => setProvince(text)}
+              placeholder="Province"
+              placeholderTextColor={'black'}
+              style={{
+                padding: 10,
+                borderColor: '#D0D0D0',
+                borderWidth: 1,
+                marginTop: 10,
+                borderRadius: 5,
+              }}
+            />
+          </View>
+
+          <View style={{marginVertical: 10}}>
             <Text style={{fontSize: 15, fontWeight: 'bold'}}>Pincode</Text>
             <TextInput
               value={postalCode}
@@ -254,30 +294,30 @@ const Demo = () => {
             />
           </View>
 
-          <View style={{marginVertical: 10}}>
-            <SelectDropdown
-              defaultButtonText="Province"
-              data={provinceOptions}
-              onSelect={selectedItem => setProvince(selectedItem)}
-              buttonStyle={{
-                borderColor: '#D0D0D0',
-                backgroundColor: '#f7f7f7',
-                borderWidth: 1,
-                marginTop: 10,
-                borderRadius: 5,
-                padding: 10,
-                width: '100%',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-            />
-          </View>
-
-          <View style={{marginVertical: 10}}>
-            <SelectDropdown
-              defaultButtonText="Your country"
-              data={countryOptions}
-              onSelect={selectedItem => setCountry(selectedItem)}
+          <View>
+          <SelectDropdown
+            data={country}
+            onSelect={(selectedItem, index) => {
+              setSelectedCountry(selectedItem.value);
+              console.log('Selected country:', selectedItem.value);
+            }}
+              defaultButtonText="Select Your Country"
+              defaultButtonTextStyle={{fontSize: 15}}
+              buttonTextAfterSelection={(selectedItem, index) => (
+                <Text
+                  style={{
+                    color: 'black',
+                    textAlign: 'left',
+                    fontSize: 15,
+                    width: '100%',
+                  }}>
+                  {selectedItem.label}
+                </Text>
+              )}
+              rowTextForSelection={(item, index) => item.label}
+              dropdownIconPosition="right"
+              dropdownStyle={{borderRadius: 5}}
+              rowTextStyle={{paddingVertical: 12}}
               buttonStyle={{
                 borderColor: '#D0D0D0',
                 backgroundColor: '#f7f7f7',
@@ -302,7 +342,7 @@ const Demo = () => {
               backgroundColor: '#007AFF',
             }}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
-              Continue
+              Continue to Payment
             </Text>
           </TouchableOpacity>
         </View>
@@ -311,6 +351,6 @@ const Demo = () => {
   );
 };
 
-export default Demo;
+export default BillingAddress;
 
 const styles = StyleSheet.create({});

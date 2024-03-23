@@ -1,230 +1,148 @@
-// import {
-//   StyleSheet,
-//   Text,
-//   TouchableOpacity,
-//   View,
-//   Image,
-//   ScrollView,
-// } from 'react-native';
-// import React, {useContext, useEffect, useState} from 'react';
-// import {UserType} from './UserContext';
-// import {BarIndicator} from 'react-native-indicators';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
+import {useBaseUrl} from './BaseUrlContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Spinner from 'react-native-loading-spinner-overlay';
+import {useNavigation} from '@react-navigation/native';
+import { ScrollView } from 'react-native';
 
-// const MyOrders = ({navigation}) => {
-//   const [orderDetails, setOrderDetails] = useState([]);
-//   const {userId} = useContext(UserType);
-//   const [loading, setLoading] = useState(true);
+const MyOrders = ({navigation}) => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const {baseUrl} = useBaseUrl();
+  const {navigate} = useNavigation();
 
-//   const fetchOrderDetails = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await fetch(
-//         `http://192.168.1.38:3000/orderDetails/${userId}`,
-//       );
-//       const data = await response.json();
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-//       if (response.status === 200) {
-//         setOrderDetails(data);
-//       } else {
-//         console.error('Error fetching order details:', response);
-//       }
-//     } catch (error) {
-//       console.error('Error fetching order details:', error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      console.log(token);
+      if (!token) {
+        setLoading(false);
+        Alert.alert('Authentication Error', 'Token not found');
+        return;
+      }
 
-//   useEffect(() => {
-//     fetchOrderDetails();
-//   }, []);
-//   return (
-//     <View>
-//       {loading ? (
-//         <View
-//           style={{
-//             width: '100%',
-//             height: '100%',
-//             justifyContent: 'center',
-//             alignItems: 'center',
-//           }}>
-//           <BarIndicator color="#007AFF" />
-//         </View>
-//       ) : (
-//         <View>
-//           <View style={styles.headerContainer}>
-//             <TouchableOpacity onPress={() => navigation.navigate('Index')}>
-//               <View style={styles.backButton}>
-//                 <Image
-//                   style={styles.backIcon}
-//                   source={require('../Assets/Normal-IMG/left-arrow.png')}
-//                 />
-//               </View>
-//             </TouchableOpacity>
+      const response = await axios.get(`${baseUrl}/api/orderhistory`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-//             <Text style={styles.headerText}>My Orders</Text>
+      const formattedOrders = response.data.orders.map(order => ({
+        ...order,
+        createdAt: new Date(order.createdAt).toLocaleString(),
+        updatedAt: new Date(order.updatedAt).toLocaleString(),
+      }));
 
-//             <View style={styles.placeholder}></View>
-//           </View>
-//           <ScrollView>
-//             {orderDetails.length === 0 ? (
-//               <View
-//                 style={{
-//                   width: '100%',
-//                   alignItems: 'center',
-//                   justifyContent: 'center',
-//                   flexDirection: 'column',
-//                   height: 600,
-//                   // backgroundColor: 'red',
-//                 }}>
-//                 <View
-//                   style={{
-//                     width: '80%',
-//                     alignItems: 'center',
-//                     justifyContent: 'space-evenly',
-//                     flexDirection: 'column',
-//                     height: '70%',
-//                     // backgroundColor: 'red',
-//                   }}>
-//                   <View style={{width: '100%', alignItems: 'center'}}>
-//                     <Text style={{fontSize: 18, fontWeight: 'bold'}}>
-//                       NO ORDERS
-//                     </Text>
-//                     <Text style={{fontSize: 16}}>
-//                       There are no recent orders to show
-//                     </Text>
-//                   </View>
+      setOrders(formattedOrders);
+      console.log(formattedOrders);
+    } catch (error) {
+      console.log('Error', 'Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//                   <Image
-//                     style={{width: 240, height: 200}}
-//                     source={require('../Assets/Normal-IMG/order-empty.png')}
-//                   />
-//                   <TouchableOpacity
-//                     onPress={() => navigation.navigate('Index')}
-//                     style={{
-//                       borderWidth: 1,
-//                       backgroundColor: 'white',
-//                       borderRadius: 5,
-//                       padding: 15,
-//                       borderColor: '#007AFF',
-//                     }}>
-//                     <Text
-//                       style={{
-//                         textAlign: 'center',
-//                         fontWeight: '700',
-//                         color: '#007AFF',
-//                       }}>
-//                       START SHOPPING{' '}
-//                     </Text>
-//                   </TouchableOpacity>
-//                 </View>
-//               </View>
-//             ) : (
-//               // Display orders
-//               <View style={styles.contentContainer}>
-//                 {orderDetails.map((item, index) => (
-//                   <TouchableOpacity
-//                     onPress={() =>
-//                       navigation.navigate('MyOrdersDetailes', {
-//                         orderDetails: item,
-//                       })
-//                     }
-//                     key={index}
-//                     style={styles.orderContainer}>
-//                     <View>
-//                       {item.address.map((addressItem, addressIndex) => (
-//                         <View key={addressIndex}>
-//                           <Text style={{fontSize: 16}}>
-//                             Delivery to :{' '}
-//                             <Text style={{fontSize: 18, fontWeight: '500'}}>
-//                               {addressItem.name}
-//                             </Text>
-//                           </Text>
-//                           <Text>
-//                             {'                        '}
-//                             {addressItem.street}
-//                           </Text>
-//                         </View>
-//                       ))}
-//                     </View>
+  const handleOrderItemClick = order => {
+    navigate('MyOrdersHistory', {orderDetails: order});
+  };
 
-//                     <Image
-//                       style={styles.arrowIcon}
-//                       source={require('../Assets/Normal-IMG/right-arrow.png')}
-//                     />
-//                   </TouchableOpacity>
-//                 ))}
-//               </View>
-//             )}
-//           </ScrollView>
-//         </View>
-//       )}
-//     </View>
-//   );
-// };
+  if (loading) {
+    return (
+      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <Spinner
+          visible={loading}
+          textContent={'Loading...'}
+          textStyle={{color: '#FFF'}}
+        />
+      </View>
+    );
+  }
 
-// const styles = StyleSheet.create({
-//   headerContainer: {
-//     width: '100%',
-//     height: 60,
-//     alignItems: 'center',
-//     justifyContent: 'space-between',
-//     flexDirection: 'row',
-//     paddingLeft: 20,
-//     paddingRight: 10,
-//   },
-//   backButton: {
-//     width: 40,
-//     borderRadius: 6,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     height: 40,
-//     backgroundColor: '#ffffff',
-//   },
-//   backIcon: {
-//     width: 20,
-//     height: 20,
-//   },
-//   headerText: {
-//     fontSize: 22,
-//     fontWeight: 'bold',
-//     color: 'black',
-//   },
-//   placeholder: {
-//     width: 40,
-//   },
-//   contentContainer: {
-//     padding: 20,
-//   },
-//   orderContainer: {
-//     justifyContent: 'space-between',
-//     flexDirection: 'row',
-//     marginVertical: 10,
-//     borderRadius: 5,
-//     padding: 10,
-//     backgroundColor: '#ffffff',
-//     alignItems: 'center',
-//   },
-
-//   arrowIcon: {
-//     width: 20,
-//     tintColor: 'gray',
-//     height: 20,
-//   },
-// });
-
-// export default MyOrders;
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-
-const MyOrders = () => {
   return (
     <View>
-      <Text>MyOrders</Text>
+           <View
+        style={{
+          width: '100%',
+          height: 60,
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          paddingLeft: 20,
+          paddingRight: 20,
+        }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+          <View
+            style={{
+              width: 40,
+              borderRadius: 6,
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 40,
+              backgroundColor: '#ffffff',
+            }}>
+            <Image
+              style={{width: 20, height: 20}}
+              source={require('../Assets/Normal-IMG/left-arrow.png')}
+            />
+          </View>
+        </TouchableOpacity>
+
+        <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
+          My Orders
+        </Text>
+
+        <View style={{width: 40}}></View>
+      </View>
+      <ScrollView >
+
+      <View style={{padding: 10,marginBottom:'20%'}}>
+        {orders.map(order => (
+          <TouchableOpacity
+            key={order.orderId}
+            onPress={() => handleOrderItemClick(order.orderId)}>
+            <View
+              style={{
+                width: '100%',
+                height: 'auto',
+                backgroundColor: 'white',
+                marginBottom: 10,
+                marginTop: 10,
+                borderRadius: 10,
+              }}>
+              <Text style={styles.orderTitle}>
+                Order Number: {order.orderNumber}
+              </Text>
+              <Text>Customer Name: {order.customerFullName}</Text>
+              <Text>Payment Method: {order.paymentMethodName}</Text>
+              <Text>Payment Status: {order.paymentStatus}</Text>
+              <Text>Shipment Status: {order.shipmentStatus}</Text>
+              <Text>Created At: {order.createdAt}</Text>
+              <Text>Updated At: {order.updatedAt}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    
+      </ScrollView>
+   
     </View>
-  )
-}
+  );
+};
 
-export default MyOrders
+export default MyOrders;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

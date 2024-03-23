@@ -22,6 +22,7 @@ import ForgotPassword from './components/ForgotPassword';
 import DemoHome from './components/DemoHome';
 import BillingAddress from './components/BillingAddress';
 import ShippingAddress from './components/ShippingAddress';
+import MyOrdersHistory from './components/MyOrdersHistory';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,7 +34,7 @@ const App = () => {
           <CartProvider>
             <Stack.Navigator
               screenOptions={{headerShown: false}}
-              initialRouteName="Demoo">
+              initialRouteName="SignIn">
               <Stack.Screen name="AuthCheck" component={AuthCheckScreen} />
               <Stack.Screen name="Intro" component={Intro} />
               <Stack.Screen name="SignIn" component={SignIn} />
@@ -48,6 +49,7 @@ const App = () => {
               <Stack.Screen name="Payment" component={Payment} />
               <Stack.Screen name="Favourite" component={Favourite} />
               <Stack.Screen name="MyOrders" component={MyOrders} />
+              <Stack.Screen name="MyOrdersHistory" component={MyOrdersHistory} />
               <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
               <Stack.Screen name="Demo" component={Demo} />
               <Stack.Screen name="Demoo" component={Demoo} />
