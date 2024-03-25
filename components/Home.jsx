@@ -141,9 +141,23 @@ const Home = ({navigation}) => {
             height: '100%',
             // backgroundColor: 'yellow',
           }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Image
+              style={{width: 200, height: 40}}
+              source={require('../Assets/Logo/logo.png')}
+            />
+            {/* <Image style={{width:180,height:50}} source={require('../Assets/Logo/newLogo.png')}/> */}
+
+            {/* 
           <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
             Home
-          </Text>
+          </Text> */}
+          </View>
         </View>
 
         <TouchableOpacity

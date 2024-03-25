@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {Image} from 'react-native';
 import {TextInput} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
@@ -14,10 +14,12 @@ import {useBaseUrl} from './BaseUrlContext';
 
 import SelectDropdown from 'react-native-select-dropdown';
 import {useCart} from './CartContext';
-
+import {useFocusEffect} from '@react-navigation/native';
 const ShippingAddress = () => {
   const {baseUrl} = useBaseUrl();
   const {activeCartUuid} = useCart();
+
+  console.log('shipping address activeuuid :', activeCartUuid);
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -31,13 +33,13 @@ const ShippingAddress = () => {
   const [postalCode, setPostalCode] = useState('');
 
   const addAddress = async () => {
-    console.log('Country:', country);
-    console.log('Name:', name);
-    console.log('Mobile No:', mobileNo);
-    console.log('House No:', houseNo);
-    console.log('Street:', street);
-    console.log('Province:', province);
-    console.log('Postal Code:', postalCode);
+    // console.log('Country:', country);
+    // console.log('Name:', name);
+    // console.log('Mobile No:', mobileNo);
+    // console.log('House No:', houseNo);
+    // console.log('Street:', street);
+    // console.log('Province:', province);
+    // console.log('Postal Code:', postalCode);
 
     if (
       !country ||
@@ -151,60 +153,54 @@ const ShippingAddress = () => {
   const handleProvinceSelect = (selectedItem, index) => {
     const selectedProvinceCode = provinceOptions[index].code;
     setProvince(selectedProvinceCode);
-    console.log('Selected Province Code:', selectedProvinceCode);
+    // console.log('Selected Province Code:', selectedProvinceCode);
   };
 
   const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
 
   const [shippingMethods, setShippingMethods] = useState([]);
-  useEffect(() => {
-    const fetchShippingMethods = async () => {
-      try {
-        if (!country || !province) {
-          return;
-        }
-
-        console.log(
-          'Fetching shipping methods for country:',
-          country,
-          'and province:',
-          province,
-        );
-
-        const response = await fetch(
-          `${baseUrl}/api/shippingMethods/${activeCartUuid}?country=${country}&province=${province}`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch shipping methods');
-        }
-
-        const responseData = await response.json();
-        console.log('Response from shipping methods API:', responseData);
-
-        const methods = responseData?.data?.methods || [];
-
-        setShippingMethods(methods);
-
-        console.log('Shipping methods:', methods);
-      } catch (error) {
-        console.error('Error fetching shipping methods:', error);
+  const fetchShippingMethods = async () => {
+    try {
+      if (!country || !province) {
+        return;
       }
-    };
 
-    fetchShippingMethods();
-  }, [country, province]);
+      console.log(
+        'Fetching shipping methods for country:',
+        country,
+        'and province:',
+        province,
+      );
+
+      const response = await fetch(
+        `${baseUrl}/api/shippingMethods/${activeCartUuid}?country=${country}&province=${province}`,
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch shipping methods');
+      }
+
+      const responseData = await response.json();
+      const methods = responseData?.data?.methods || [];
+      setShippingMethods(methods);
+    } catch (error) {
+      console.error('Error fetching shipping methods:', error);
+    }
+  };
 
   const handleSelectedShippingMethod = async index => {
     setSelectedShippingMethod(index);
     try {
       const selectedMethod = shippingMethods[index];
+     // console.log('selectedMethod:', selectedMethod);
       if (!selectedMethod) {
         console.error('Selected shipping method not found');
         return;
       }
 
       const methodCode = selectedMethod.code;
+
+     // console.log(methodCode);
 
       const response = await fetch(
         `${baseUrl}/api/carts/${activeCartUuid}/shippingMethods`,
@@ -223,12 +219,29 @@ const ShippingAddress = () => {
         throw new Error('Failed to post shipping method');
       }
 
-      console.log('Shipping method posted successfully');
+      console.log('Shipping method posted successfully : ', response);
     } catch (error) {
       console.error('Error posting shipping method:', error);
-      Alert.alert('Error', error.message);
     }
   };
+
+
+
+
+
+  useEffect(() => {
+    fetchShippingMethods();
+  }, [country, province]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchShippingMethods();
+    }, [country, province]),
+  );
+
+
+
+
 
   return (
     <ScrollView>

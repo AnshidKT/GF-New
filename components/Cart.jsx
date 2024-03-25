@@ -334,7 +334,7 @@ const Cart = ({navigation}) => {
                         {/* show the discount_amount from api */}
                       </Text>
                     </View>
-                    <View
+                    {/* <View
                       style={{
                         width: '100%',
                         height: 40,
@@ -358,7 +358,7 @@ const Cart = ({navigation}) => {
                         }}>
                         Free
                       </Text>
-                    </View>
+                    </View> */}
                     <View
                       style={{
                         width: '100%',

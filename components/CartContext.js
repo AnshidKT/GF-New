@@ -24,6 +24,9 @@ export const CartProvider = ({children}) => {
   const [cartData, setCartData] = useState([]);
   const [activeCartUuid, setActiveCartUuid] = useState('');
 
+
+
+  
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [discountPrice, setDiscountPrice] = useState(0);

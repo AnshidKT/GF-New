@@ -292,7 +292,7 @@ const SignIn = ({navigation}) => {
               }}></View>
           </View>
 
-          <View
+          {/* <View
             style={{
               width: '100%',
               height: 100,
@@ -313,7 +313,7 @@ const SignIn = ({navigation}) => {
               style={{width: 40, height: 40}}
               source={require('../Assets/Normal-IMG/instagram.png')}
             />
-          </View>
+          </View> */}
         </View>
         <View
           style={{
