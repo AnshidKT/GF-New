@@ -44,15 +44,15 @@ const SignIn = ({navigation}) => {
 
     axios
       .post(`${baseUrl}/customer/login`, user)
-     .then(response => {
+
+      .then(response => {
         const token = response.data.data.token;
-      //  console.log(token);
+        AsyncStorage.setItem('tokentoken', token);
         const customerName = response.data.data.customer_name;
-        AsyncStorage.setItem('authToken', token).then(() => {
-          AsyncStorage.setItem('customerName', customerName)
-            //.then(() => console.log('Name stored successfully'))
-            //.catch(error => console.error('Error storing name:', error));
-        });
+        AsyncStorage.setItem('email', email);
+        AsyncStorage.setItem('password', password);
+        AsyncStorage.setItem('customerName', customerName);
+
         navigation.navigate('Index');
       })
       .catch(error => {

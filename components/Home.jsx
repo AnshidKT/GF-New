@@ -261,11 +261,11 @@ const Home = ({navigation}) => {
                   fontSize: 16,
                   borderRadius: 8,
                 }}
-                value={searchQuery}
-                onChangeText={text => {
-                  setSearchQuery(text);
-                  handleSearch(text);
-                }}
+              //  value={searchQuery}
+                // onChangeText={text => {
+                //   setSearchQuery(text);
+                //   handleSearch(text);
+                // }}
                 placeholder="Search.."
                 placeholderTextColor="gray"
               />

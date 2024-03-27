@@ -14,9 +14,13 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {useNavigation} from '@react-navigation/native';
 import {ScrollView} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
+import {BarIndicator} from 'react-native-indicators';
+import {useCart} from './CartContext';
 const MyOrders = ({navigation}) => {
+  const {currency} = useCart();
+
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const {baseUrl} = useBaseUrl();
   const {navigate} = useNavigation();
 
@@ -29,10 +33,10 @@ const MyOrders = ({navigation}) => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      console.log(token);
+      const token = await AsyncStorage.getItem('AuthToken');
+      console.log('tokenMuorders:',token);
       if (!token) {
-        setLoading(false);
+        setLoading(true);
         Alert.alert('Authentication Error', 'Token not found');
         return;
       }
@@ -50,7 +54,7 @@ const MyOrders = ({navigation}) => {
       }));
 
       setOrders(formattedOrders);
-      console.log(formattedOrders);
+    //  console.log(formattedOrders);
     } catch (error) {
       console.log('Error', 'Failed to fetch orders');
     } finally {
@@ -65,203 +69,207 @@ const MyOrders = ({navigation}) => {
   if (orders.length === 0) {
     return (
       <View style={{flex: 1}}>
-        <View
-          style={{
-            width: '100%',
-            height: 60,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            paddingLeft: 20,
-            paddingRight: 20,
-          }}>
-          <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+        {loading ? (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <BarIndicator color="#007AFF" />
+          </View>
+        ) : (
+          <>
             <View
               style={{
-                width: 40,
-                borderRadius: 6,
+                width: '100%',
+                height: 60,
                 alignItems: 'center',
-                justifyContent: 'center',
-                height: 40,
-                backgroundColor: '#ffffff',
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                paddingLeft: 20,
+                paddingRight: 20,
               }}>
-              <Image
-                style={{width: 20, height: 20}}
-                source={require('../Assets/Normal-IMG/left-arrow.png')}
-              />
+              <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+                <View
+                  style={{
+                    width: 40,
+                    borderRadius: 6,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 40,
+                    backgroundColor: '#ffffff',
+                  }}>
+                  <Image
+                    style={{width: 20, height: 20}}
+                    source={require('../Assets/Normal-IMG/left-arrow.png')}
+                  />
+                </View>
+              </TouchableOpacity>
+
+              <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
+                My Orders
+              </Text>
+
+              <View style={{width: 40}}></View>
             </View>
-          </TouchableOpacity>
-
-          <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
-            My Orders
-          </Text>
-
-          <View style={{width: 40}}></View>
-        </View>
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-          <Text style={{fontSize: 18}}>No orders available.</Text>
-          <Spinner
-            visible={loading}
-            textContent={'Loading...'}
-            textStyle={{color: '#FFF'}}
-          />
-        </View>
-      </View>
-    );
-  }
-
-  if (loading) {
-    return (
-      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-        <Spinner
-          visible={loading}
-          textContent={'Loading...'}
-          textStyle={{color: '#FFF'}}
-        />
+            <View
+              style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={{fontSize: 18}}>No orders available.</Text>
+            </View>
+          </>
+        )}
       </View>
     );
   }
 
   return (
-    <View>
-      <View
-        style={{
-          width: '100%',
-          height: 60,
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexDirection: 'row',
-          paddingLeft: 20,
-          paddingRight: 20,
-        }}>
-        <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+    <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>
+      {loading ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <BarIndicator color="#007AFF" />
+        </View>
+      ) : (
+        <>
           <View
             style={{
-              width: 40,
-              borderRadius: 6,
+              width: '100%',
+              height: 60,
               alignItems: 'center',
-              justifyContent: 'center',
-              height: 40,
-              backgroundColor: '#ffffff',
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              paddingLeft: 20,
+              paddingRight: 20,
             }}>
-            <Image
-              style={{width: 20, height: 20}}
-              source={require('../Assets/Normal-IMG/left-arrow.png')}
-            />
-          </View>
-        </TouchableOpacity>
-
-        <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
-          My Orders
-        </Text>
-
-        <View style={{width: 40}}></View>
-      </View>
-      <ScrollView>
-        <View style={{padding: 10, marginBottom: '20%'}}>
-          {orders.map(order => (
-            <TouchableOpacity
-              key={order.orderId}
-              onPress={() => handleOrderItemClick(order)}>
+            <TouchableOpacity onPress={() => navigation.navigate('Index')}>
               <View
                 style={{
-                  width: '100%',
-                  height: 'auto',
-                  backgroundColor: 'white',
-                  marginBottom: 10,
-                  marginTop: 10,
-                  borderRadius: 10,
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
+                  width: 40,
+                  borderRadius: 6,
                   alignItems: 'center',
-                  padding: 10,
+                  justifyContent: 'center',
+                  height: 40,
+                  backgroundColor: '#ffffff',
                 }}>
-                <View
-                  style={{
-                    width: '100%',
-                    height: 70,
-                    flexDirection: 'row',
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                    // backgroundColor: 'red',
-                  }}>
-                  <Image
-                    style={{width: 40, height: 40}}
-                    source={require('../Assets/Normal-IMG/tick-cart.png')}
-                  />
+                <Image
+                  style={{width: 20, height: 20}}
+                  source={require('../Assets/Normal-IMG/left-arrow.png')}
+                />
+              </View>
+            </TouchableOpacity>
+
+            <Text style={{fontSize: 22, fontWeight: 'bold', color: 'black'}}>
+              My Orders
+            </Text>
+
+            <View style={{width: 40}}></View>
+          </View>
+          <ScrollView>
+            <View style={{padding: 10, marginBottom: '20%'}}>
+              {orders.map(order => (
+                <TouchableOpacity
+                  key={order.orderId}
+                  onPress={() => handleOrderItemClick(order)}>
                   <View
                     style={{
-                      width: '70%',
-                      height: '100%',
+                      width: '100%',
+                      height: 'auto',
+                      backgroundColor: 'white',
+                      marginBottom: 10,
+                      marginTop: 10,
+                      borderRadius: 10,
                       flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-around',
-                      // backgroundColor: 'gray',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: 10,
                     }}>
-                    <Text style={{color: 'black'}}>
-                      Order Id :{' '}
-                      <Text style={{color: 'black', fontSize: 15}}>
-                        {' '}
-                        #{order.orderNumber}
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 70,
+                        flexDirection: 'row',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        // backgroundColor: 'red',
+                      }}>
+                      <Image
+                        style={{width: 40, height: 40}}
+                        source={require('../Assets/Normal-IMG/tick-cart.png')}
+                      />
+                      <View
+                        style={{
+                          width: '70%',
+                          height: '100%',
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                          justifyContent: 'space-around',
+                          // backgroundColor: 'gray',
+                        }}>
+                        <Text style={{color: 'black'}}>
+                          Order Id :{' '}
+                          <Text style={{color: 'black', fontSize: 15}}>
+                            {' '}
+                            #{order.orderNumber}
+                          </Text>
+                        </Text>
+                        <Text style={{color: 'black'}}>
+                          Name :{' '}
+                          <Text style={{color: 'black', fontSize: 15}}>
+                            {' '}
+                            {order.customerFullName}
+                          </Text>
+                        </Text>
+                        <Text style={{color: 'black'}}>
+                          Order On :{' '}
+                          <Text style={{color: 'black'}}>
+                            {' '}
+                            {order.createdAt}
+                          </Text>
+                        </Text>
+                      </View>
+                      <Image
+                        source={require('../Assets/Normal-IMG/right-arrow.png')}
+                      />
+                    </View>
+
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        backgroundColor: 'white',
+                        marginTop: 10,
+                        paddingRight: 11,
+                        paddingLeft: 11,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{color: 'black'}}>Price </Text>
+                      <Text style={{fontWeight: '500', color: 'black'}}>
+                        {currency} {parseFloat(order.grandTotal).toFixed()}
                       </Text>
-                    </Text>
-                    <Text style={{color: 'black'}}>
-                      Name :{' '}
-                      <Text style={{color: 'black', fontSize: 15}}>
-                        {' '}
-                        {order.customerFullName}
+                    </View>
+                    <View
+                      style={{
+                        width: '95%',
+                        borderTopWidth: 0.3,
+                        borderTopColor: 'gray',
+                      }}></View>
+                    <View
+                      style={{
+                        width: '100%',
+                        height: 40,
+                        backgroundColor: 'white',
+
+                        paddingRight: 11,
+                        paddingLeft: 11,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{color: 'black'}}>Status </Text>
+                      <Text style={{color: 'black'}}>
+                        {order.shipmentStatus}{' '}
                       </Text>
-                    </Text>
-                    <Text style={{color: 'black'}}>
-                      Order On :{' '}
-                      <Text style={{color: 'black'}}> {order.createdAt}</Text>
-                    </Text>
-                  </View>
-                  <Image
-                    source={require('../Assets/Normal-IMG/right-arrow.png')}
-                  />
-                </View>
+                    </View>
 
-                <View
-                  style={{
-                    width: '100%',
-                    height: 40,
-                    backgroundColor: 'white',
-                    marginTop: 10,
-                    paddingRight: 11,
-                    paddingLeft: 11,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}>
-                  <Text style={{color: 'black'}}>Price </Text>
-                  <Text style={{fontWeight: '500', color: 'black'}}>
-                    QR {parseFloat(order.grandTotal).toFixed()}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    width: '95%',
-                    borderTopWidth: 0.3,
-                    borderTopColor: 'gray',
-                  }}></View>
-                <View
-                  style={{
-                    width: '100%',
-                    height: 40,
-                    backgroundColor: 'white',
-
-                    paddingRight: 11,
-                    paddingLeft: 11,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}>
-                  <Text style={{color: 'black'}}>Status </Text>
-                  <Text style={{color: 'black'}}>{order.shipmentStatus} </Text>
-                </View>
-
-                {/* <View>
+                    {/* <View>
                   <Text style={{}}>
                     Order Number :{' '}
                     <Text
@@ -295,11 +303,13 @@ const MyOrders = ({navigation}) => {
                     </Text>
                   </Text>
                 </View> */}
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        </>
+      )}
     </View>
   );
 };

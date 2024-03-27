@@ -22,7 +22,7 @@ const Cart = ({navigation}) => {
     couponApplied,
     subtotal,
     discountPrice,
-    total,
+    total,currency
   } = useCart();
 
   const removeItem = uuid => {
@@ -140,7 +140,7 @@ const Cart = ({navigation}) => {
                         justifyContent: 'space-around',
                       }}>
                       <Text style={{color: '#00b33c', fontWeight: 'bold'}}>
-                        QR {parseFloat(item.sub_total).toFixed()}
+                        {currency} {parseFloat(item.sub_total).toFixed()}
                       </Text>
                     </View>
                     <View
@@ -304,7 +304,7 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                        QR {subtotal}
+                        {currency} {subtotal}
                         {/* show the sub_total from api */}
                       </Text>
                     </View>
@@ -330,7 +330,7 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                        QR {discountPrice}
+                     {currency}  {discountPrice}
                         {/* show the discount_amount from api */}
                       </Text>
                     </View>
@@ -387,7 +387,7 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '600',
                         }}>
-                        QR {total}
+                        {currency} {total}
                         {/* show the total from api */}
                       </Text>
                     </View>

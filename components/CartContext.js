@@ -24,17 +24,15 @@ export const CartProvider = ({children}) => {
   const [cartData, setCartData] = useState([]);
   const [activeCartUuid, setActiveCartUuid] = useState('');
 
+  const [subtotal, setSubtotal] = useState('');
+  const [total, setTotal] = useState('');
+  const [discountPrice, setDiscountPrice] = useState('');
+  const [currency, setCurrency] = useState('');
 
-
-  
-  const [subtotal, setSubtotal] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [discountPrice, setDiscountPrice] = useState(0);
-
-   const fetchCartData = async () => {
+  const fetchCartData = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      // console.log('AsyncStorage token:', token);
+      const token = await AsyncStorage.getItem('AuthToken');
+      console.log('CartToken:', token);
 
       const response = await axios.get(`${baseUrl}/api/cart/getcarts`, {
         headers: {
@@ -48,21 +46,13 @@ export const CartProvider = ({children}) => {
 
       setCartData(responseData.activeCartItems);
       setActiveCartUuid(responseData.activeCart.uuid);
-      setLoading(false);
 
-      // Calculate subtotal, total, and discount price
-      const subtotal = responseData.activeCartItems.reduce(
-        (total, item) => total + parseFloat(item.sub_total),
-        0,
-      );
-      const discountPrice = responseData.activeCartItems.reduce(
-        (total, item) => total + parseFloat(item.discount_amount),
-        0,
-      );
-      const total = subtotal - discountPrice;
-      setSubtotal(subtotal);
-      setTotal(total);
-      setDiscountPrice(discountPrice);
+      setCurrency(responseData.activeCart.currency);
+      setDiscountPrice(parseFloat(responseData.activeCart.discount_amount));
+      setSubtotal(parseFloat(responseData.activeCart.sub_total));
+      setTotal(parseFloat(responseData.activeCart.grand_total));
+
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching cart data:', error);
       setLoading(false);
@@ -72,12 +62,6 @@ export const CartProvider = ({children}) => {
   useEffect(() => {
     fetchCartData();
   }, []);
-
-
-
-
-
-
 
   useEffect(() => {
     if (activeCartUuid) {
@@ -97,16 +81,6 @@ export const CartProvider = ({children}) => {
     } catch (error) {
       console.log('Failed to remove item from cart');
     }
-  };
-
-  const calculateTotalPrice = () => {
-    if (!cartData || cartData.length === 0) {
-      return 0;
-    }
-    return cartData.reduce(
-      (total, item) => total + item.final_price * item.qty,
-      0,
-    );
   };
 
   // coupon code = TST10560
@@ -163,11 +137,11 @@ export const CartProvider = ({children}) => {
         couponCode,
         setCouponCode,
         couponApplied,
-        calculateTotalPrice,
         subtotal,
         discountPrice,
         total,
         fetchCartData,
+        currency,
       }}>
       {children}
     </CartContext.Provider>

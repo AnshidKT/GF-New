@@ -1,11 +1,42 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from './Home';
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Cart from './Cart';
 import Shop from './Shopping';
+import {useFocusEffect} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Index = ({navigation}) => {
+  const [userData, setUserData] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      console.log('Fetching user data...');
+      const email = await AsyncStorage.getItem('email');
+      const token = await AsyncStorage.getItem('tokentoken');
+      const password = await AsyncStorage.getItem('password');
+      const customerName = await AsyncStorage.getItem('customerName');
+
+      setUserData({email, token, password, customerName});
+
+
+      console.log(customerName);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
+
   const Tab = createBottomTabNavigator();
 
   const CustomTabBarButton = ({children, onPress}) => (
@@ -109,11 +140,6 @@ const Index = ({navigation}) => {
         }}
       />
     </Tab.Navigator>
-
-
-
-
-
   );
 };
 

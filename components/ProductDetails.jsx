@@ -20,12 +20,12 @@ import {useCart} from './CartContext';
 const ProductDetails = ({navigation}) => {
   const {baseUrl} = useBaseUrl();
   const {activeCartUuid} = useCart();
-
+  const {currency} = useCart();
   console.log(activeCartUuid, ':activeCartUuidactiveCartUuid');
 
   const route = useRoute();
   const {product} = route.params;
-  // console.log('producttttt  : ', product);
+  //console.log('producttttt  : ', product);
 
   const showAddedToCart = () => {
     showMessage({
@@ -35,6 +35,7 @@ const ProductDetails = ({navigation}) => {
   };
 
   const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
   const handleIncrement = () => {
@@ -49,34 +50,32 @@ const ProductDetails = ({navigation}) => {
 
   const handleSizeSelection = size => {
     setSelectedSize(size);
+    setSelectedColor(null);
+  };
 
-    const selectedVariant = product.variants.find(
-      variant => variant.size === size,
-    );
-    if (selectedVariant) {
-      // console.log('Selected Variant SKU:', selectedVariant.sku);
-      //console.log('Selected Variant Size:', selectedVariant.size);
-    }
+  const handleColorSelection = color => {
+    setSelectedColor(color);
   };
 
   //Add To Cart
 
   const handleToAdmin = async item => {
     console.log('Selected Size:', selectedSize);
-    if (!selectedSize) {
-      Alert.alert('Info', 'Please select a size');
+    if (!selectedSize || !selectedColor) {
+      Alert.alert('Info', 'Please select a size and color');
       return;
     }
 
     const selectedVariant = item.variants.find(
-      variant => variant.size === selectedSize,
+      variant =>
+        variant.size === selectedSize && variant.color === selectedColor,
     );
     if (selectedVariant) {
       try {
         const userItem = {
           sku: selectedVariant.sku,
           qty: quantity,
-          variant_options: selectedSize,
+          variant_options: `${selectedSize}, ${selectedColor}`,
         };
         // console.log(userItem);
         const response = await fetch(
@@ -108,23 +107,6 @@ const ProductDetails = ({navigation}) => {
       console.error('Selected size not found in variants');
     }
   };
-  const renderSizeButton = size => (
-    <TouchableOpacity
-      key={size}
-      style={{
-        width: 40,
-        height: 40,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: selectedSize === size ? '#64D2FF99' : 'white',
-        marginRight: 10,
-        borderWidth: 0.2,
-        borderColor: '#a6a6a6',
-      }}
-      onPress={() => handleSizeSelection(size)}>
-      <Text style={{color: 'black', fontSize: 18}}>{size}</Text>
-    </TouchableOpacity>
-  );
 
   return (
     <View>
@@ -245,8 +227,6 @@ const ProductDetails = ({navigation}) => {
                 width: '100%',
                 height: 60,
                 flexDirection: 'row',
-
-                // backgroundColor: 'red',
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
@@ -256,16 +236,85 @@ const ProductDetails = ({navigation}) => {
                   width: '80%',
                   height: '90%',
                   flexDirection: 'row',
-                  //   backgroundColor: 'yellow',
                   alignItems: 'center',
                   justifyContent: 'flex-start',
                 }}>
-                {['S', 'M', 'L', 'XL', 'XXL'].map(size =>
-                  renderSizeButton(size),
-                )}
+                {['S', 'M', 'L', 'XL', 'XXL'].map(size => (
+                  <TouchableOpacity
+                    key={size}
+                    style={{
+                      width: 40,
+                      height: 40,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor:
+                        selectedSize === size ? '#64D2FF99' : 'white',
+                      marginRight: 10,
+                      borderWidth: 0.2,
+                      borderColor: '#a6a6a6',
+                    }}
+                    onPress={() => handleSizeSelection(size)}>
+                    <Text style={{color: 'black', fontSize: 18}}>{size}</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
+            {selectedSize && (
+              <View
+                style={{
+                  width: '100%',
+                  height: 50,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}>
+                <Text style={{fontSize: 18, color: 'black'}}>Color</Text>
 
+                <View
+                  style={{
+                    width: '80%',
+                    height: 'auto',
+                    flexDirection: 'row',
+                    justifyContent: 'flex-start',
+                    marginTop: 5,
+                    // backgroundColor: 'red',
+                  }}>
+                  {product.variants
+                    .filter(variant => variant.size === selectedSize)
+                    .map(variant => (
+                      <TouchableOpacity
+                        key={variant.variantId}
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 3,
+                          backgroundColor: variant.color.toLowerCase(),
+
+                          marginRight: 10,
+                          borderWidth: 0.2,
+                          borderColor: '#a6a6a6',
+                        }}
+                        onPress={() => handleColorSelection(variant.color)}>
+                        {selectedColor === variant.color && (
+                          <View
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              // borderRadius: 10,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#b3e9ff',
+                            }}>
+                            <Text style={{color: 'black', fontWeight: '500'}}>
+                              {variant.color}
+                            </Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                </View>
+              </View>
+            )}
             <View
               style={{
                 width: '100%',
@@ -354,7 +403,7 @@ const ProductDetails = ({navigation}) => {
                 justifyContent: 'space-between',
               }}>
               <Text style={{fontSize: 28, color: '#007AfF', fontWeight: '600'}}>
-                QR: {parseFloat(product.price).toFixed(2)}
+                {currency} : {parseFloat(product.price).toFixed(2)}
               </Text>
 
               <TouchableOpacity onPress={() => handleToAdmin(product)}>

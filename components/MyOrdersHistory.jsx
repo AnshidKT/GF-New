@@ -2,13 +2,14 @@ import React from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useBaseUrl} from './BaseUrlContext';
+import { useCart } from './CartContext';
 
 const MyOrdersHistory = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {orderDetails} = route.params;
   const {baseUrl} = useBaseUrl();
-
+const {currency}=useCart()
   
   const getStatusTintColor = (status, index) => {
     if (status === 'processing' && index <= 1) {
@@ -88,7 +89,7 @@ const MyOrdersHistory = () => {
               <Text>{item.product_name}</Text>
               <Text>{JSON.parse(item.variant_options)[1].option_text}</Text>
               <Text>Qty: {item.qty}</Text>
-              <Text> QR {parseFloat(item.final_price).toFixed()}</Text>
+              <Text> {currency} {parseFloat(item.final_price).toFixed()}</Text>
             </View>
           ))}
         </View>
@@ -108,7 +109,7 @@ const MyOrdersHistory = () => {
           }}>
           <Text style={{fontSize: 16}}>Sub Total :</Text>
           <Text style={{fontSize: 16, fontWeight: '700'}}>
-            QR {parseFloat(orderDetails.subTotal).toFixed()}
+            {currency} {parseFloat(orderDetails.subTotal).toFixed()}
           </Text>
         </View>
         <View
@@ -124,7 +125,7 @@ const MyOrdersHistory = () => {
           }}>
           <Text style={{fontSize: 16}}>Discount Coupon :</Text>
           <Text style={{fontSize: 16, fontWeight: '700'}}>
-            QR -{parseFloat(orderDetails.discountAmount).toFixed()}
+            {currency} -{parseFloat(orderDetails.discountAmount).toFixed()}
           </Text>
         </View>
         <View
@@ -140,7 +141,7 @@ const MyOrdersHistory = () => {
           }}>
           <Text style={{fontSize: 16}}>Shipping Tax :</Text>
           <Text style={{fontSize: 16, fontWeight: '700'}}>
-            QR +{parseFloat(orderDetails.shippingFeeExclTax).toFixed()}
+            {currency} +{parseFloat(orderDetails.shippingFeeExclTax).toFixed()}
           </Text>
         </View>
 
@@ -157,7 +158,7 @@ const MyOrdersHistory = () => {
           }}>
           <Text style={{fontSize: 16}}>Grand Total :</Text>
           <Text style={{fontSize: 16, color: 'green', fontWeight: '900'}}>
-            QR +{parseFloat(orderDetails.grandTotal).toFixed()}
+            {currency} {parseFloat(orderDetails.grandTotal).toFixed()}
           </Text>
         </View>
       </View>

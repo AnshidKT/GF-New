@@ -10,9 +10,11 @@ import React, {useEffect, useState} from 'react';
 
 import {useBaseUrl} from './BaseUrlContext';
 import {useNavigation} from '@react-navigation/native';
+import { useCart } from './CartContext';
 
 const HomeDatas = ({sliderValue}) => {
   const {baseUrl} = useBaseUrl();
+  const {currency} = useCart();
   const navigation = useNavigation();
   const [product, setProduct] = useState([]);
   const [collectionName, setCollectionName] = useState('');
@@ -168,7 +170,7 @@ const HomeDatas = ({sliderValue}) => {
                         fontSize: 15,
                         fontWeight: '600',
                       }}>
-                      QR : {parseFloat(item.price).toFixed(2)}
+                     {currency} : {parseFloat(item.price).toFixed(1)}
                     </Text>
                   </View>
                 </View>

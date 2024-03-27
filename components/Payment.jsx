@@ -13,7 +13,7 @@ import {ScrollView} from 'react-native';
 import {useCart} from './CartContext';
 
 const Payment = ({navigation, route}) => {
-  const {total, discountPrice, subtotal, activeCartUuid} = useCart();
+  const {total, discountPrice, subtotal, currency, activeCartUuid} = useCart();
 
   const [loading, setLoading] = useState(false);
   const [selectedPaymentIndex, setSelectedPaymentIndex] = useState();
@@ -111,21 +111,21 @@ const Payment = ({navigation, route}) => {
       }
 
       const responseData = await response.json();
-      console.log('Order placed successfully:', responseData);
+      // console.log('Order placed successfully:', responseData);
       Alert.alert(
         'Ordered',
         'Order placed successfully',
         [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('Index'),
+            onPress: () => navigation.navigate('MyOrders'),
           },
         ],
         {cancelable: false},
       );
     } catch (error) {
-      console.error('Error placing order:', error);
-      Alert.alert('Error', 'Failed to place order. Please try again.');
+      console.error('Error placing order:', error.message);
+      //  Alert.alert('Error', 'Failed to place order. Please try again.');
     }
   };
 
@@ -223,7 +223,7 @@ const Payment = ({navigation, route}) => {
                     fontWeight: '500',
                     color: 'green',
                   }}>
-                  QR {subtotal}
+                  {currency} {subtotal}
                 </Text>
               </View>
               <View
@@ -245,7 +245,7 @@ const Payment = ({navigation, route}) => {
                     fontWeight: '500',
                     color: 'green',
                   }}>
-                  QR {discountPrice}
+                  {currency} {discountPrice}
                 </Text>
               </View>
               <View
@@ -267,7 +267,7 @@ const Payment = ({navigation, route}) => {
                     fontWeight: '500',
                     color: 'green',
                   }}>
-                  QR {total}
+                  {currency} {total}
                 </Text>
               </View>
             </View>

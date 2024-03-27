@@ -6,26 +6,34 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {useFocusEffect} from '@react-navigation/native';
 const Profile = ({navigation, profileToggleMenu}) => {
-  const [userName, setUserName] = useState('');
+  const [userData, setUserData] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const customerName = await AsyncStorage.getItem('customerName');
+
+      setUserData(customerName);
+
+      console.log('customerName:', customerName);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }, []);
 
   useEffect(() => {
-    retrieveUserName();
-  }, []);
-  const retrieveUserName = async () => {
-    try {
-      const name = await AsyncStorage.getItem('customerName');
-      if (name !== null) {
-        setUserName(name);
-      }
-    } catch (error) {
-      console.error('Error retrieving name:', error);
-    }
-  };
+    fetchData();
+  }, [fetchData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%'}}>
@@ -181,7 +189,7 @@ const Profile = ({navigation, profileToggleMenu}) => {
                   borderRadius: 10,
                 }}>
                 <Text style={{fontSize: 22, color: 'black'}}>
-                  {userName ? userName : 'Username'}
+                  {userData ? userData : 'Username'}
                 </Text>
                 <Text style={{fontSize: 13, color: 'black'}}>
                   {/* useremail {email} */}
@@ -254,9 +262,7 @@ const Profile = ({navigation, profileToggleMenu}) => {
             <Text style={{fontSize: 18, color: 'black'}}>My Favourites</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-        onPress={() => navigation.navigate('MyOrders')}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate('MyOrders')}>
           <View
             style={{
               width: '100%',

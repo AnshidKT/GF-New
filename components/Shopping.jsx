@@ -13,7 +13,9 @@ import {useNavigation} from '@react-navigation/native';
 import {useBaseUrl} from './BaseUrlContext';
 import {BarIndicator} from 'react-native-indicators';
 import Slider from '@react-native-community/slider';
+import { useCart } from './CartContext';
 const Shopping = () => {
+  const {currency} = useCart();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -470,7 +472,7 @@ const Shopping = () => {
                               fontSize: 15,
                               fontWeight: '600',
                             }}>
-                            QR : {parseFloat(item.price).toFixed(2)}
+                            {currency} : {parseFloat(item.price).toFixed(2)}
                           </Text>
                         </View>
                       </View>
