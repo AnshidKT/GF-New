@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -51,15 +51,15 @@ const App = () => {
           },
         );
 
-        console.log('Login API response:', response);
+      //  console.log('Login API response:', response);
 
         console.log('Login successful!');
         const token = response.data.data.token;
-        AsyncStorage.setItem('AuthToken', token);
+        AsyncStorage.setItem('AutoLogin    :  ', token);
 
         const customerName = response.data.data.customer_name;
         AsyncStorage.setItem('CustomerName', customerName);
-        console.log('tokentokentoken:', token);
+     //   console.log('tokentokentoken:', token);
 
         setAuthenticated(true);
         setLoading(false);
@@ -120,7 +120,7 @@ const App = () => {
                 </>
               ) : (
                 <>
-                   <Stack.Screen name="SignIn" component={SignIn} />
+                  <Stack.Screen name="SignIn" component={SignIn} />
                 </>
               )}
             </Stack.Navigator>

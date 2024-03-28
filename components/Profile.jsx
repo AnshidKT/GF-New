@@ -35,6 +35,22 @@ const Profile = ({navigation, profileToggleMenu}) => {
     }, [fetchData]),
   );
 
+  const handleLogout = async () => {
+    try {
+      // Clear AsyncStorage data related to the user
+      await AsyncStorage.removeItem('LoginToken');
+      await AsyncStorage.removeItem('email');
+      await AsyncStorage.removeItem('password');
+      await AsyncStorage.removeItem('customerName');
+
+      setUserData(null);
+
+      navigation.navigate('SignIn');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%'}}>
       <ScrollView>
@@ -279,7 +295,7 @@ const Profile = ({navigation, profileToggleMenu}) => {
             <Text style={{fontSize: 18, color: 'black'}}>My Orders</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
+        <TouchableOpacity onPress={handleLogout}>
           <View
             style={{
               width: '100%',

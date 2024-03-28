@@ -47,7 +47,7 @@ const SignIn = ({navigation}) => {
 
       .then(response => {
         const token = response.data.data.token;
-        AsyncStorage.setItem('tokentoken', token);
+        AsyncStorage.setItem('LoginToken', token);
         const customerName = response.data.data.customer_name;
         AsyncStorage.setItem('email', email);
         AsyncStorage.setItem('password', password);

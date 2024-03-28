@@ -29,14 +29,17 @@ export const CartProvider = ({children}) => {
   const [discountPrice, setDiscountPrice] = useState('');
   const [currency, setCurrency] = useState('');
 
+
+
+
   const fetchCartData = async () => {
     try {
-      const token = await AsyncStorage.getItem('AuthToken');
-      console.log('CartToken:', token);
+      const Logintoken = await AsyncStorage.getItem('LoginToken');
+     console.log('CartToken:', Logintoken);
 
       const response = await axios.get(`${baseUrl}/api/cart/getcarts`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+        headers: {  
+          Authorization: `Bearer ${Logintoken}`,
         },
       });
 
@@ -59,9 +62,13 @@ export const CartProvider = ({children}) => {
     }
   };
 
-  useEffect(() => {
-    fetchCartData();
-  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCartData();
+    }, []),
+  );
+
 
   useEffect(() => {
     if (activeCartUuid) {

@@ -14,14 +14,14 @@ const Index = ({navigation}) => {
     try {
       console.log('Fetching user data...');
       const email = await AsyncStorage.getItem('email');
-      const token = await AsyncStorage.getItem('tokentoken');
+      const token = await AsyncStorage.getItem('LoginToken');
       const password = await AsyncStorage.getItem('password');
       const customerName = await AsyncStorage.getItem('customerName');
 
       setUserData({email, token, password, customerName});
 
 
-      console.log(customerName);
+     // console.log("loginToken    : ",token);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }

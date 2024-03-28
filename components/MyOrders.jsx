@@ -17,35 +17,61 @@ import {useFocusEffect} from '@react-navigation/native';
 import {BarIndicator} from 'react-native-indicators';
 import {useCart} from './CartContext';
 const MyOrders = ({navigation}) => {
-  const {currency} = useCart();
-
-  const [orders, setOrders] = useState([]);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
   const {baseUrl} = useBaseUrl();
   const {navigate} = useNavigation();
+  const {currency} = useCart();
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchOrders();
-    }, []),
-  );
+  // useEffect(() => {
+  //   fetchData();
+  // }, []);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchData();
+  //   }, []),
+  // );
+
+  // const fetchData = useCallback(async () => {
+  //   try {
+  //     console.log('Fetching user data...');
+  //     const Logintoken = await AsyncStorage.getItem('LoginToken');
+  //     console.log('FLogintoken  :', Logintoken);
+  //     const name = await AsyncStorage.getItem('customerName');
+
+  //     setUserData(Logintoken);
+
+  //     if (Logintoken) {
+  //       fetchOrders(Logintoken);
+  //       console.log(name);
+  //     } else {
+  //       const AutoLoginToken = await AsyncStorage.getItem('AutoLogin');
+  //       if (AutoLoginToken) {
+  //         fetchOrders(AutoLoginToken);
+  //       } else {
+  //         setLoading(false);
+  //         setOrders([]);
+  //         Alert.alert('Authentication Error', 'Token not found');
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching user data:', error);
+  //   }
+  // }, []);
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem('AuthToken');
-      console.log('tokenMuorders:',token);
-      if (!token) {
-        setLoading(true);
-        Alert.alert('Authentication Error', 'Token not found');
-        return;
-      }
-
+      const Logintoken = await AsyncStorage.getItem('LoginToken');
       const response = await axios.get(`${baseUrl}/api/orderhistory`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${Logintoken}`,
         },
       });
+
+console.log("LogintokenMyorders   : ",Logintoken);
 
       const formattedOrders = response.data.orders.map(order => ({
         ...order,
@@ -54,7 +80,6 @@ const MyOrders = ({navigation}) => {
       }));
 
       setOrders(formattedOrders);
-    //  console.log(formattedOrders);
     } catch (error) {
       console.log('Error', 'Failed to fetch orders');
     } finally {
@@ -62,10 +87,26 @@ const MyOrders = ({navigation}) => {
     }
   };
 
+
+useFocusEffect(
+    useCallback(() => {
+      fetchOrders();
+    }, []),
+  );
+
+
+
+
+
+
+
+
+
+
+
   const handleOrderItemClick = order => {
     navigate('MyOrdersHistory', {orderDetails: order});
   };
-
   if (orders.length === 0) {
     return (
       <View style={{flex: 1}}>
