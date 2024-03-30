@@ -15,11 +15,33 @@ import {BarIndicator} from 'react-native-indicators';
 import Slider from '@react-native-community/slider';
 import { useCart } from './CartContext';
 const Shopping = () => {
-  const {currency} = useCart();
+  const {currency,fetchCartData} = useCart();
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const {baseUrl} = useBaseUrl();
+
+
+
+
+
+
+
+
+  useEffect(() => {
+    fetchCartData();
+  }, [currency]);
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     fetchCategories();
@@ -143,6 +165,12 @@ const Shopping = () => {
       products: filteredProducts,
     }));
   };
+
+
+
+
+
+
 
   return (
     <View style={{backgroundColor: '#F7F7F7', height: '100%', width: '100%'}}>

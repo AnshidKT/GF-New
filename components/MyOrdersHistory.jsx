@@ -1,16 +1,19 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {useBaseUrl} from './BaseUrlContext';
-import { useCart } from './CartContext';
+import {useCart} from './CartContext';
 
 const MyOrdersHistory = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {orderDetails} = route.params;
   const {baseUrl} = useBaseUrl();
-const {currency}=useCart()
-  
+  const {currency, fetchCartData} = useCart();
+  useEffect(() => {
+    fetchCartData();
+  }, [currency]);
+
   const getStatusTintColor = (status, index) => {
     if (status === 'processing' && index <= 1) {
       return 'green';
@@ -89,7 +92,10 @@ const {currency}=useCart()
               <Text>{item.product_name}</Text>
               <Text>{JSON.parse(item.variant_options)[1].option_text}</Text>
               <Text>Qty: {item.qty}</Text>
-              <Text> {currency} {parseFloat(item.final_price).toFixed()}</Text>
+              <Text>
+                {' '}
+                {currency} {parseFloat(item.final_price).toFixed()}
+              </Text>
             </View>
           ))}
         </View>

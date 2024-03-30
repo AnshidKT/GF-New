@@ -5,10 +5,39 @@ import {
   TouchableOpacity,
   View,
   TextInput,
+  Alert,
 } from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
+import {useBaseUrl} from './BaseUrlContext';
 
 const ForgotPassword = ({navigation}) => {
+  const {baseUrl} = useBaseUrl();
+
+  const [forgotEmail, setForgotEmail] = useState('');
+
+  const handleForgotPassword = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/api/customers/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: forgotEmail,
+        }),
+      });
+      if (response.ok) {
+        Alert.alert('Success', 'Password reset email sent successfully');
+        console.log('Password reset email sent successfully');
+      } else {
+        Alert.alert('Error', 'Failed to send password reset email');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Alert.alert('Error', 'Failed to send password reset email');
+    }
+  };
+
   return (
     <View style={{width: '100%', height: '100%', backgroundColor: '#e6e6e6'}}>
       <View
@@ -68,27 +97,32 @@ const ForgotPassword = ({navigation}) => {
           <TextInput
             style={{
               width: '90%',
-              borderWidth: 0.3,
-              borderRadius: 10,
+              borderRadius: 3,
               height: 50,
               marginBottom: 10,
+              padding: 10,
               backgroundColor: 'white',
             }}
             placeholder="Enter your email"
+            onChangeText={text => setForgotEmail(text)}
+            value={forgotEmail}
           />
           <TouchableOpacity
             style={{
               width: '50%',
               height: 50,
-            }}>
+              alignItems: 'center',
+              marginBottom: -10,
+            }}
+            onPress={handleForgotPassword}>
             <View
               style={{
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '100%',
-                height: 50,
+                width: '80%',
+                height: 40,
                 backgroundColor: '#0066ff',
-                borderRadius: 10,
+                borderRadius: 3,
               }}>
               <Text style={{color: 'white', fontSize: 18, fontWeight: '600'}}>
                 Send

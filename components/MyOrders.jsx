@@ -22,7 +22,15 @@ const MyOrders = ({navigation}) => {
   const [orders, setOrders] = useState([]);
   const {baseUrl} = useBaseUrl();
   const {navigate} = useNavigation();
-  const {currency} = useCart();
+  const {currency,fetchCartData} = useCart();
+
+
+
+  useEffect(() => {
+    fetchCartData();
+  }, [currency]);
+
+
 
   // useEffect(() => {
   //   fetchData();

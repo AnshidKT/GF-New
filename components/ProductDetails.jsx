@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 
 import FlashMessage, {
@@ -20,11 +20,27 @@ import {useCart} from './CartContext';
 const ProductDetails = ({navigation}) => {
   const {baseUrl} = useBaseUrl();
   const {activeCartUuid} = useCart();
-  const {currency} = useCart();
+  const {currency,fetchCartData} = useCart();
   console.log(activeCartUuid, ':activeCartUuidactiveCartUuid');
 
   const route = useRoute();
   const {product} = route.params;
+  useEffect(() => {
+    fetchCartData();
+  }, [currency]);
+
+
+
+
+useEffect(()=>{
+  activeCartUuid
+},[])
+
+
+
+
+
+
   //console.log('producttttt  : ', product);
 
   const showAddedToCart = () => {

@@ -22,7 +22,8 @@ const Cart = ({navigation}) => {
     couponApplied,
     subtotal,
     discountPrice,
-    total,currency
+    total,
+    currency,
   } = useCart();
 
   const removeItem = uuid => {
@@ -31,9 +32,12 @@ const Cart = ({navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchCartData(); 
+      fetchCartData();
     }, [cartData]),
   );
+  // useEffect(()=>{
+  //   fetchCartData();
+  // },[cartData])
 
   return (
     <View style={{backgroundColor: '#F7F7F7', width: '100%', height: '100%'}}>
@@ -330,7 +334,7 @@ const Cart = ({navigation}) => {
                           color: 'green',
                           fontWeight: '400',
                         }}>
-                     {currency}  {discountPrice}
+                        {currency} {discountPrice}
                         {/* show the discount_amount from api */}
                       </Text>
                     </View>

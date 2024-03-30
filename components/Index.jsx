@@ -6,9 +6,15 @@ import Cart from './Cart';
 import Shop from './Shopping';
 import {useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useCart } from './CartContext';
 
 const Index = ({navigation}) => {
   const [userData, setUserData] = useState(null);
+
+
+const {currency,fetchCartData}=useCart()
+
+
 
   const fetchData = useCallback(async () => {
     try {
@@ -26,6 +32,20 @@ const Index = ({navigation}) => {
       console.error('Error fetching user data:', error);
     }
   }, []);
+
+
+ useEffect(() => {
+    fetchCartData();
+  }, [currency]);
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     fetchData();

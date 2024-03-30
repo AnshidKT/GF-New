@@ -51,7 +51,7 @@ const App = () => {
           },
         );
 
-      //  console.log('Login API response:', response);
+        //  console.log('Login API response:', response);
 
         console.log('Login successful!');
         const token = response.data.data.token;
@@ -59,7 +59,7 @@ const App = () => {
 
         const customerName = response.data.data.customer_name;
         AsyncStorage.setItem('CustomerName', customerName);
-     //   console.log('tokentokentoken:', token);
+        //   console.log('tokentokentoken:', token);
 
         setAuthenticated(true);
         setLoading(false);
@@ -84,6 +84,7 @@ const App = () => {
             <Stack.Navigator screenOptions={{headerShown: false}}>
               {authenticated ? (
                 <>
+                
                   <Stack.Screen name="Index" component={Index} />
                   <Stack.Screen
                     name="ProductDetails"
@@ -120,7 +121,40 @@ const App = () => {
                 </>
               ) : (
                 <>
-                  <Stack.Screen name="SignIn" component={SignIn} />
+                <Stack.Screen name="Intro" component={Intro} />
+                <Stack.Screen name="SignIn" component={SignIn} />
+                  <Stack.Screen name="Index" component={Index} />
+                  <Stack.Screen
+                    name="ProductDetails"
+                    component={ProductDetails}
+                  />
+                  <Stack.Screen
+                    name="ShippingAddress"
+                    component={ShippingAddress}
+                  />
+                  <Stack.Screen
+                    name="BillingAddress"
+                    component={BillingAddress}
+                  />
+                  <Stack.Screen name="Payment" component={Payment} />
+                  <Stack.Screen name="Favourite" component={Favourite} />
+                  <Stack.Screen name="MyOrders" component={MyOrders} />
+                  <Stack.Screen
+                    name="MyOrdersHistory"
+                    component={MyOrdersHistory}
+                  />
+                  <Stack.Screen name="Demo" component={Demo} />
+                  <Stack.Screen name="Demoo" component={Demoo} />
+                  <Stack.Screen name="DemoHome" component={DemoHome} />
+                  <Stack.Screen
+                    name="MyOrdersDetailes"
+                    component={MyOrdersDetailes}
+                  />
+                  <Stack.Screen name="SignUp" component={SignUp} />
+                  <Stack.Screen
+                    name="ForgotPassword"
+                    component={ForgotPassword}
+                  />
                 </>
               )}
             </Stack.Navigator>

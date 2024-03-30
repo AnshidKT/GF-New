@@ -66,6 +66,9 @@ const SignIn = ({navigation}) => {
       });
   };
 
+
+
+
   return (
     <View>
       <View style={{width: '100%', height: '100%', backgroundColor: '#e6e6e6'}}>
@@ -91,7 +94,7 @@ const SignIn = ({navigation}) => {
           <Text style={{fontSize: 22, color: 'black', fontWeight: '600'}}>
             Sign In
           </Text>
-          {/* <View
+          <View
             style={{
               marginLeft: 10,
               width: 40,
@@ -99,8 +102,8 @@ const SignIn = ({navigation}) => {
               alignItems: 'center',
               justifyContent: 'center',
               height: 40,
-            }}></View> */}
-          <TouchableOpacity onPress={() => navigation.navigate('Index')}>
+            }}></View>
+          {/* <TouchableOpacity onPress={() => navigation.navigate('Index')}>
             <View
               style={{
                 marginRight: 10,
@@ -113,7 +116,7 @@ const SignIn = ({navigation}) => {
               }}>
               <Text style={{color: 'black'}}>Skip</Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View
