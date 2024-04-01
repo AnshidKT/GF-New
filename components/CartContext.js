@@ -32,7 +32,7 @@ export const CartProvider = ({children}) => {
   const fetchCartData = async () => {
     try {
       const Logintoken = await AsyncStorage.getItem('LoginToken');
-     // console.log('CartToken:', Logintoken);
+      console.log('CartToken:', Logintoken);
 
       const response = await axios.get(`${baseUrl}/api/cart/getcarts`, {
         headers: {
