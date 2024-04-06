@@ -24,7 +24,10 @@ const Cart = ({navigation}) => {
     discountPrice,
     total,
     currency,
+    activeCartUuid,
   } = useCart();
+
+ // console.log('activeCartUuidCart : ', activeCartUuid);
 
   const removeItem = uuid => {
     handleRemoveItem(uuid);
@@ -218,7 +221,7 @@ const Cart = ({navigation}) => {
                             style={{
                               width: 70,
                               height: '65%',
-                              backgroundColor: '#007AFF',
+                              backgroundColor: '#030303',
                             }}>
                             <View
                               style={{
@@ -413,7 +416,7 @@ const Cart = ({navigation}) => {
                             width: 120,
                             height: 40,
                             borderRadius: 4,
-                            backgroundColor: '#007AFF',
+                            backgroundColor: '#030303',
                             alignItems: 'center',
                             justifyContent: 'center',
                           }}>

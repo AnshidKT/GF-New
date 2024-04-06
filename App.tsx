@@ -22,6 +22,7 @@ import DemoHome from './components/DemoHome';
 import MyOrdersHistory from './components/MyOrdersHistory';
 import {UserContext} from './components/UserContext';
 import {BaseUrlProvider} from './components/BaseUrlContext';
+import {LoginProvider} from './components/LoginContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -80,85 +81,86 @@ const App = () => {
     <NavigationContainer>
       <UserContext>
         <BaseUrlProvider>
-          <CartProvider>
-            <Stack.Navigator screenOptions={{headerShown: false}}>
-              {authenticated ? (
-                <>
-                
-                  <Stack.Screen name="Index" component={Index} />
-                  <Stack.Screen
-                    name="ProductDetails"
-                    component={ProductDetails}
-                  />
-                  <Stack.Screen
-                    name="ShippingAddress"
-                    component={ShippingAddress}
-                  />
-                  <Stack.Screen
-                    name="BillingAddress"
-                    component={BillingAddress}
-                  />
-                  <Stack.Screen name="Payment" component={Payment} />
-                  <Stack.Screen name="Favourite" component={Favourite} />
-                  <Stack.Screen name="MyOrders" component={MyOrders} />
-                  <Stack.Screen
-                    name="MyOrdersHistory"
-                    component={MyOrdersHistory}
-                  />
-                  <Stack.Screen name="Demo" component={Demo} />
-                  <Stack.Screen name="Demoo" component={Demoo} />
-                  <Stack.Screen name="DemoHome" component={DemoHome} />
-                  <Stack.Screen
-                    name="MyOrdersDetailes"
-                    component={MyOrdersDetailes}
-                  />
-                  <Stack.Screen name="SignUp" component={SignUp} />
-                  <Stack.Screen
-                    name="ForgotPassword"
-                    component={ForgotPassword}
-                  />
-                  <Stack.Screen name="SignIn" component={SignIn} />
-                </>
-              ) : (
-                <>
-                <Stack.Screen name="Intro" component={Intro} />
-                <Stack.Screen name="SignIn" component={SignIn} />
-                  <Stack.Screen name="Index" component={Index} />
-                  <Stack.Screen
-                    name="ProductDetails"
-                    component={ProductDetails}
-                  />
-                  <Stack.Screen
-                    name="ShippingAddress"
-                    component={ShippingAddress}
-                  />
-                  <Stack.Screen
-                    name="BillingAddress"
-                    component={BillingAddress}
-                  />
-                  <Stack.Screen name="Payment" component={Payment} />
-                  <Stack.Screen name="Favourite" component={Favourite} />
-                  <Stack.Screen name="MyOrders" component={MyOrders} />
-                  <Stack.Screen
-                    name="MyOrdersHistory"
-                    component={MyOrdersHistory}
-                  />
-                  <Stack.Screen name="Demo" component={Demo} />
-                  <Stack.Screen name="Demoo" component={Demoo} />
-                  <Stack.Screen name="DemoHome" component={DemoHome} />
-                  <Stack.Screen
-                    name="MyOrdersDetailes"
-                    component={MyOrdersDetailes}
-                  />
-                  <Stack.Screen name="SignUp" component={SignUp} />
-                  <Stack.Screen
-                    name="ForgotPassword"
-                    component={ForgotPassword}
-                  />
-                </>
-              )}
-            </Stack.Navigator>
-          </CartProvider>
+          <LoginProvider>
+            <CartProvider>
+              <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Demo'>
+                {authenticated ? (
+                  <>
+                    <Stack.Screen name="Index" component={Index} />
+                    <Stack.Screen
+                      name="ProductDetails"
+                      component={ProductDetails}
+                    />
+                    <Stack.Screen
+                      name="ShippingAddress"
+                      component={ShippingAddress}
+                    />
+                    <Stack.Screen
+                      name="BillingAddress"
+                      component={BillingAddress}
+                    />
+                    <Stack.Screen name="Payment" component={Payment} />
+                    <Stack.Screen name="Favourite" component={Favourite} />
+                    <Stack.Screen name="MyOrders" component={MyOrders} />
+                    <Stack.Screen
+                      name="MyOrdersHistory"
+                      component={MyOrdersHistory}
+                    />
+                    <Stack.Screen name="Demo" component={Demo} />
+                    <Stack.Screen name="Demoo" component={Demoo} />
+                    <Stack.Screen name="DemoHome" component={DemoHome} />
+                    <Stack.Screen
+                      name="MyOrdersDetailes"
+                      component={MyOrdersDetailes}
+                    />
+                    <Stack.Screen name="SignUp" component={SignUp} />
+                    <Stack.Screen
+                      name="ForgotPassword"
+                      component={ForgotPassword}
+                    />
+                    <Stack.Screen name="SignIn" component={SignIn} />
+                  </>
+                ) : (
+                  <>
+                    <Stack.Screen name="Intro" component={Intro} />
+                    <Stack.Screen name="SignIn" component={SignIn} />
+                    <Stack.Screen name="Index" component={Index} />
+                    <Stack.Screen
+                      name="ProductDetails"
+                      component={ProductDetails}
+                    />
+                    <Stack.Screen
+                      name="ShippingAddress"
+                      component={ShippingAddress}
+                    />
+                    <Stack.Screen
+                      name="BillingAddress"
+                      component={BillingAddress}
+                    />
+                    <Stack.Screen name="Payment" component={Payment} />
+                    <Stack.Screen name="Favourite" component={Favourite} />
+                    <Stack.Screen name="MyOrders" component={MyOrders} />
+                    <Stack.Screen
+                      name="MyOrdersHistory"
+                      component={MyOrdersHistory}
+                    />
+                    <Stack.Screen name="Demo" component={Demo} />
+                    <Stack.Screen name="Demoo" component={Demoo} />
+                    <Stack.Screen name="DemoHome" component={DemoHome} />
+                    <Stack.Screen
+                      name="MyOrdersDetailes"
+                      component={MyOrdersDetailes}
+                    />
+                    <Stack.Screen name="SignUp" component={SignUp} />
+                    <Stack.Screen
+                      name="ForgotPassword"
+                      component={ForgotPassword}
+                    />
+                  </>
+                )}
+              </Stack.Navigator>
+            </CartProvider>
+          </LoginProvider>
         </BaseUrlProvider>
       </UserContext>
     </NavigationContainer>

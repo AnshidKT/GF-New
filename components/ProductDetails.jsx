@@ -1,5 +1,7 @@
 import {
+  ActivityIndicator,
   Alert,
+  FlatList,
   Image,
   ScrollView,
   StyleSheet,
@@ -9,6 +11,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
+import StarImage from '../Assets/Normal-IMG/star.png';
 
 import FlashMessage, {
   showMessage,
@@ -20,7 +23,7 @@ import {useCart} from './CartContext';
 const ProductDetails = ({navigation}) => {
   const {baseUrl} = useBaseUrl();
   const {activeCartUuid} = useCart();
-  const {currency,fetchCartData} = useCart();
+  const {currency, fetchCartData} = useCart();
   console.log(activeCartUuid, ':activeCartUuidactiveCartUuid');
 
   const route = useRoute();
@@ -29,17 +32,9 @@ const ProductDetails = ({navigation}) => {
     fetchCartData();
   }, [currency]);
 
-
-
-
-useEffect(()=>{
-  activeCartUuid
-},[])
-
-
-
-
-
+  useEffect(() => {
+    activeCartUuid;
+  }, []);
 
   //console.log('producttttt  : ', product);
 
@@ -123,6 +118,8 @@ useEffect(()=>{
       console.error('Selected size not found in variants');
     }
   };
+
+  
 
   return (
     <View>
@@ -232,7 +229,8 @@ useEffect(()=>{
                   fontSize: 30,
                   fontStyle: 'italic',
                   fontWeight: 'bold',
-                  color: '#007AFF',
+                  // color: '#007AFF',
+                  color:"#4d4d4d"
                 }}>
                 {product.name}
               </Text>
@@ -376,7 +374,7 @@ useEffect(()=>{
                     borderWidth: 0.2,
                     borderColor: '#a6a6a6',
                     backgroundColor: 'white',
-                    margin: 8,
+                    margin: 2,
                   }}>
                   <Text style={{color: 'black', fontSize: 18}}>{quantity}</Text>
                 </View>
@@ -418,7 +416,7 @@ useEffect(()=>{
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}>
-              <Text style={{fontSize: 28, color: '#007AfF', fontWeight: '600'}}>
+              <Text style={{fontSize: 28,color:"#4d4d4d", fontWeight: '600'}}>
                 {currency} : {parseFloat(product.price).toFixed(2)}
               </Text>
 
@@ -427,7 +425,7 @@ useEffect(()=>{
                   style={{
                     width: 160,
                     height: 50,
-                    backgroundColor: '#007AFF',
+                    backgroundColor: '#030303',     
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-evenly',
@@ -481,11 +479,136 @@ useEffect(()=>{
             </TouchableOpacity>
           </View> */}
 
-            <View
+            {/* <View
               style={{
                 width: '100%',
-                height: 100,
-              }}></View>
+                // height: 300,
+                // backgroundColor: 'red',
+                marginBottom: 100,
+              }}>
+              <View>
+                <Text style={{fontSize: 22, color: 'gray'}}>
+                  Customer Reviews
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  // backgroundColor: 'yellow',
+                }}>
+                {isLoading ? (
+                  <ActivityIndicator size="large" color="#0000ff" />
+                ) : (
+                  <View
+                    style={{
+                      width: '100%',
+                      // padding: 10,
+                    }}>
+                    {filteredReviews.length > 0 ? (
+                      <FlatList
+                        data={filteredReviews}
+                        renderItem={({item}) => (
+                          <View
+                            style={{
+                              width: '100%',
+                              marginBottom: 10,
+                              // backgroundColor: 'white',
+                              padding: 10,
+                              borderRadius: 5,
+                              marginTop: 10,
+                              borderWidth: 0.1,
+                              borderColor: 'gray',
+                            }}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                margin: 2,
+                              }}>
+                              <View
+                                style={{
+                                  width: 120,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                <Text style={{fontSize: 14, color: 'black'}}>
+                                  Customer Name{' '}
+                                </Text>
+                                <Text>: </Text>
+                              </View>
+                              <Text style={{fontSize: 16, color: 'black'}}>
+                                {item.customerName}
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                margin: 2,
+                              }}>
+                              <View
+                                style={{
+                                  width: 120,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                <Text style={{fontSize: 14, color: 'black'}}>
+                                  Rating{' '}
+                                </Text>
+                                <Text>: </Text>
+                              </View>
+                              {[...Array(item.rating)].map((_, index) => (
+                                <Image
+                                  key={index}
+                                  source={StarImage}
+                                  style={{width: 17, height: 17}}
+                                />
+                              ))}
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                margin: 2,
+                              }}>
+                              <View
+                                style={{
+                                  width: 120,
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                }}>
+                                <Text style={{fontSize: 14, color: 'black'}}>
+                                  Comment{' '}
+                                </Text>
+                                <Text>: </Text>
+                              </View>
+                              <View style={{width: 'auto', marginLeft: 5}}>
+                                <Text style={{fontSize: 16, color: 'black'}}>
+                                  {item.comment}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        )}
+                        keyExtractor={(item, index) => index.toString()}
+                      />
+                    ) : (
+                      <Text
+                        style={{
+                          fontSize: 16,
+                          color: 'black',
+                          fontStyle: 'italic',
+                        }}>
+                        No reviews available for this product.
+                      </Text>
+                    )}
+                  </View>
+                )}
+              </View>
+            </View> */}
           </View>
         </View>
       </ScrollView>

@@ -139,7 +139,7 @@ const ShippingAddress = () => {
       return;
     }
     if (selectedShippingMethod === null) {
-      Alert.alert('Info', 'Please select a shipping method');
+      Alert.alert('Info', 'Please select the shipping method');
       return;
     }
   
@@ -456,7 +456,7 @@ const ShippingAddress = () => {
               justifyContent: 'center',
               alignItems: 'center',
               marginTop: 20,
-              backgroundColor: '#007AFF',
+              backgroundColor: '#030303',
             }}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
               Continue

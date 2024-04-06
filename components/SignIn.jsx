@@ -8,66 +8,20 @@ import {
   Alert,
 } from 'react-native';
 import React, {useState} from 'react';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
-import {useBaseUrl} from './BaseUrlContext';
-import {useCart} from './CartContext';
+import {useLogin} from './LoginContext';
 const SignIn = ({navigation}) => {
-  const {baseUrl} = useBaseUrl();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [showError, setShowError] = useState(false);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleLogin = isLogin => {
-    if (email.trim() === '' || password.trim() === '') {
-      setShowError(true);
-      return;
-    }
-
-    setShowError(false);
-    setLoading(true);
-
-    const user = {
-      email: email,
-      password: password,
-    };
-
-    const apiEndpoint = isLogin ? 'login' : 'signup';
-
-    axios
-      .post(`${baseUrl}/customer/login`, user)
-
-      .then(response => {
-        const token = response.data.data.token;
-        AsyncStorage.setItem('LoginToken', token);
-        const customerName = response.data.data.customer_name;
-        AsyncStorage.setItem('email', email);
-        AsyncStorage.setItem('password', password);
-        AsyncStorage.setItem('customerName', customerName);
-
-        navigation.navigate('Index');
-      })
-      .catch(error => {
-        Alert.alert(
-          'Authentication Error',
-          isLogin ? 'Invalid email or password' : 'Sign-up failed',
-        );
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-
-
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    showPassword,
+    togglePasswordVisibility,
+    loading,
+    showError,
+    handleLogin,
+  } = useLogin();
 
   return (
     <View>
@@ -103,20 +57,6 @@ const SignIn = ({navigation}) => {
               justifyContent: 'center',
               height: 40,
             }}></View>
-          {/* <TouchableOpacity onPress={() => navigation.navigate('Index')}>
-            <View
-              style={{
-                marginRight: 10,
-                width: 50,
-                borderRadius: 6,
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: 40,
-                backgroundColor: '#ffffff',
-              }}>
-              <Text style={{color: 'black'}}>Skip</Text>
-            </View>
-          </TouchableOpacity> */}
         </View>
 
         <View
@@ -255,7 +195,7 @@ const SignIn = ({navigation}) => {
               height: 50,
             }}
             // onPress={handleSignIn}
-            onPress={handleLogin}>
+            onPress={() => handleLogin(navigation)}>
             <View
               style={{
                 alignItems: 'center',
@@ -296,27 +236,27 @@ const SignIn = ({navigation}) => {
           </View>
 
           {/* <View
-            style={{
-              width: '100%',
-              height: 100,
-              // backgroundColor: 'red',
-              flexDirection: 'row',
-              alignItems: 'flex-start',
-              justifyContent: 'center',
-            }}>
-            <Image
-              style={{borderRadius: 20, marginTop: 3, width: 35, height: 35}}
-              source={require('../Assets/Normal-IMG/google.png')}
-            />
-            <Image
-              style={{width: 40, height: 40, margin: 20, marginTop: 0}}
-              source={require('../Assets/Normal-IMG/facebook.png')}
-            />
-            <Image
-              style={{width: 40, height: 40}}
-              source={require('../Assets/Normal-IMG/instagram.png')}
-            />
-          </View> */}
+          style={{
+            width: '100%',
+            height: 100,
+            // backgroundColor: 'red',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+          }}>
+          <Image
+            style={{borderRadius: 20, marginTop: 3, width: 35, height: 35}}
+            source={require('../Assets/Normal-IMG/google.png')}
+          />
+          <Image
+            style={{width: 40, height: 40, margin: 20, marginTop: 0}}
+            source={require('../Assets/Normal-IMG/facebook.png')}
+          />
+          <Image
+            style={{width: 40, height: 40}}
+            source={require('../Assets/Normal-IMG/instagram.png')}
+          />
+        </View> */}
         </View>
         <View
           style={{

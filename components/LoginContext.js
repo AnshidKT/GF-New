@@ -1,43 +1,70 @@
-// import React, { createContext, useState, useContext } from 'react';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import axios from 'axios';
-// import {useBaseUrl}  from './BaseUrlContext';
+import React, {createContext, useState, useContext} from 'react';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useBaseUrl} from './BaseUrlContext';
+import {Alert} from 'react-native';
 
-// const LoginContext = createContext();
+const LoginContext = createContext();
 
-// export const LoginProvider = ({ children }) => {
-//   const [user, setUser] = useState(null);
-//   const {baseUrl} = useBaseUrl();
+export const LoginProvider = ({children}) => {
+  const {baseUrl} = useBaseUrl();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showError, setShowError] = useState(false);
 
-//   const login = async (email, password) => {
-//     try {
-//       const response = await axios.post(`${baseUrl}/customer/login`, { email, password });
-//       const { token, customer_name } = response.data.data;
-//       await AsyncStorage.setItem('authToken', token);
-//       await AsyncStorage.setItem('customerName', customer_name);
-//       setUser({ email, name: customer_name });
-//       return true;
-//     } catch (error) {
-//       console.error('Login failed:', error);
-//       return false;
-//     }
-//   };
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
-//   const logout = async () => {
-//     try {
-//       await AsyncStorage.removeItem('authToken');
-//       await AsyncStorage.removeItem('customerName');
-//       setUser(null);
-//     } catch (error) {
-//       console.error('Logout failed:', error);
-//     }
-//   };
+  const handleLogin = async navigation => {
+    if (email.trim() === '' || password.trim() === '') {
+      setShowError(true);
+      return;
+    }
 
-//   return (
-//     <LoginContext.Provider value={{ user, login, logout }}>
-//       {children}
-//     </LoginContext.Provider>
-//   );
-// };
+    setShowError(false);
+    setLoading(true);
 
-// export const useLogin = () => useContext(LoginContext);
+    const user = {
+      email: email,
+      password: password,
+    };
+
+    try {
+        const response = await axios.post(`${baseUrl}/customer/login`, user);
+      const token = response.data.data.token;
+      await AsyncStorage.setItem('LoginToken', token);
+      const customerName = response.data.data.customer_name;
+      await AsyncStorage.setItem('email', email);
+      await AsyncStorage.setItem('password', password);
+      await AsyncStorage.setItem('customerName', customerName);
+      navigation.navigate('Index');
+    } catch (error) {
+        console.error('Login error:', error);
+        Alert.alert('Authentication Error', 'Invalid email or password');
+      } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <LoginContext.Provider
+      value={{
+        email,
+        setEmail,
+        password,
+        setPassword,
+        showPassword,
+        togglePasswordVisibility,
+        loading,
+        showError,
+        handleLogin,
+      }}>
+      {children}
+    </LoginContext.Provider>
+  );
+};
+
+export const useLogin = () => useContext(LoginContext);

@@ -339,7 +339,7 @@ const BillingAddress = () => {
               justifyContent: 'center',
               alignItems: 'center',
               marginTop: 20,
-              backgroundColor: '#007AFF',
+              backgroundColor: '#030303',
             }}>
             <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
               Continue to Payment

@@ -406,7 +406,7 @@ const Payment = ({navigation, route}) => {
                 borderRadius: 8,
                 height: 60,
                 marginBottom: 10,
-                backgroundColor: '#007AFF',
+                backgroundColor: '#030303',
               }}>
               <Text style={{color: 'white', fontSize: 18, fontWeight: '600'}}>
                 Place Order

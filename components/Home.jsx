@@ -7,17 +7,51 @@ import {
   TouchableOpacity,
   View,
   Animated,
+  Dimensions,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Slider from '@react-native-community/slider';
 import HomeDatas from './HomeDatas';
 import Drawer from './Drawer';
 import Profile from './Profile';
-
+import Carousel from 'react-native-snap-carousel';
 import Footer from './Footer';
-
+import {useBaseUrl} from './BaseUrlContext';
 const Home = ({navigation}) => {
   const [isMenuVisible, setMenuVisible] = useState(false);
+  const {baseUrl} = useBaseUrl();
+  const [advertisements, setAdvertisements] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${baseUrl}/api/products/allcategory`)
+      .then(response => response.json())
+      .then(data => {
+        const mappedCategories = data.categories.map(category => ({
+          name: category.name,
+          image: category.image,
+        }));
+        const reversedCategories = mappedCategories.reverse();
+
+        setCategories(reversedCategories);
+      })
+      .catch(error => console.error('Error fetching categories:', error));
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/api/advertisements/allAds`);
+        const data = await response.json();
+        setAdvertisements(data.advertisements);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const menuAnimation = new Animated.Value(0);
 
   const toggleMenu = () => {
@@ -97,6 +131,94 @@ const Home = ({navigation}) => {
       setSelectedProduct(null);
     }
   };
+
+  //corousle
+  const renderItem = ({item}) => (
+    <View
+      style={{
+        width: '100%',
+        height: 150,
+        // backgroundColor: 'yellow',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+      <View
+        style={{
+          width: '90%',
+          height: '95%',
+          // backgroundColor:'red',
+          // elevation: 1,
+          borderRadius: 8,
+        }}>
+        <Image
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            borderRadius: 4,
+            // elevation: 3,
+          }}
+          source={{
+            uri: `${baseUrl}${item.banner}`,
+          }}
+        />
+      </View>
+
+      <View
+        style={{
+          alignItems: 'flex-start',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          width: '80%',
+          height: '80%',
+          // backgroundColor: 'red',
+          position: 'absolute',
+          marginLeft: '5%',
+        }}>
+        <Text
+          style={{
+            fontSize: 17,
+            fontWeight: '600',
+            color: 'red',
+            fontStyle: 'italic',
+          }}>
+          {item.heading}
+        </Text>
+        <Text
+          style={{
+            fontSize: 15,
+            marginTop: 8,
+            marginBottom: 12,
+            fontWeight: '500',
+            color: 'black',
+            fontStyle: 'italic',
+          }}>
+          {item.subHeading}
+        </Text>
+
+        <TouchableOpacity onPress={() => navigation.navigate('Shop')}>
+          <View
+            style={{
+              borderRadius: 2,
+              width: 80,
+              height: 27,
+              backgroundColor: 'black',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text
+              style={{
+                fontSize: 10,
+                color: 'white',
+                textAlign: 'center',
+              }}>
+              Shop Now
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
     <View style={{backgroundColor: '#F7F7F7'}}>
@@ -261,7 +383,7 @@ const Home = ({navigation}) => {
                   fontSize: 16,
                   borderRadius: 8,
                 }}
-              //  value={searchQuery}
+                //  value={searchQuery}
                 // onChangeText={text => {
                 //   setSearchQuery(text);
                 //   handleSearch(text);
@@ -364,137 +486,26 @@ const Home = ({navigation}) => {
           </View>
         )}
 
-        <ScrollView
-          horizontal
-          pagingEnabled
-          decelerationRate="fast"
-          snapToInterval={560}
-          style={{width: '100%', height: 190}}>
-          <View
-            style={{
-              marginTop: 20,
-              width: 360,
-              height: 150,
-              // backgroundColor: 'yellow',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <View
-              style={{
-                alignItems: 'flex-end',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '90%',
-                height: '95%',
-              }}>
-              <Image
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  position: 'relative',
-                  borderRadius: 4,
-                }}
-                source={require('../Assets/add-Banner/banner-one.png')}
-              />
+  
 
-              <View
-                style={{
-                  alignItems: 'flex-start',
-                  width: '50%',
-                  height: 40,
-                  // backgroundColor: 'red',
-                  position: 'absolute',
-                  marginLeft: '5%',
-                }}>
-                <TouchableOpacity onPress={() => navigation.navigate('Shop')}>
-                  <View
-                    style={{
-                      borderRadius: 2,
-                      width: 80,
-                      height: 27,
-                      backgroundColor: 'black',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 10,
-                        color: 'white',
-                        textAlign: 'center',
-                      }}>
-                      Shop Now
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          <View
-            style={{
-              marginTop: 20,
-              width: 360,
-              height: 150,
-              // backgroundColor: 'yellow',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <View
-              style={{
-                alignItems: 'flex-end',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '90%',
-                height: '95%',
-              }}>
-              <Image
-                style={{
-                  borderRadius: 4,
-                  width: '100%',
-                  height: '100%',
-                  position: 'relative',
-                }}
-                source={require('../Assets/add-Banner/banner-two.png')}
-              />
-              <View
-                style={{
-                  alignItems: 'flex-start',
-                  width: '50%',
-                  height: 40,
-                  // backgroundColor: 'red',
-                  position: 'absolute',
-                  marginLeft: '5%',
-                }}>
-                <TouchableOpacity onPress={() => navigation.navigate('Shop')}>
-                  <View
-                    style={{
-                      borderRadius: 2,
-                      width: 80,
-                      height: 27,
-                      backgroundColor: 'black',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                    <Text
-                      style={{
-                        fontSize: 10,
-                        color: 'white',
-                        textAlign: 'center',
-                      }}>
-                      Shop Now
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
+        <View style={{flex: 1,marginTop:10}}>
+          <Carousel
+            data={advertisements}
+            renderItem={renderItem}
+            sliderWidth={Dimensions.get('window').width}
+            itemWidth={Dimensions.get('window').width * 1}
+            autoplay
+            autoplayInterval={4000}
+            loop
+          />
+        </View>
 
         <ScrollView
           horizontal
           style={{
             width: '100%',
             height: 80,
+            marginTop:10
             //  backgroundColor: 'gray'
           }}>
           <View
@@ -506,180 +517,53 @@ const Home = ({navigation}) => {
               justifyContent: 'center',
               flexDirection: 'row',
             }}>
-            <View
-              style={{
-                width: 138,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderRadius: 8,
-                margin: 10,
-                height: 50,
-                backgroundColor: 'white',
-              }}>
-              <Image
+            {categories.map(category => (
+              <TouchableOpacity
                 style={{
-                  width: 40,
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  height: '100%',
-                }}
-                source={require('../Assets/Kandora/kandora-one.webp')}
-              />
-              <Text
-                style={{
-                  color: 'black',
-                  fontSize: 12,
-                  fontWeight: 'bold',
+                  width: 138,
                   margin: 10,
-                }}>
-                ArabElegance
-              </Text>
-            </View>
-            <View
-              style={{
-                width: 138,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderRadius: 8,
-                margin: 10,
-                height: 50,
-                backgroundColor: 'white',
-              }}>
-              <Image
-                style={{
-                  width: 40,
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  height: '100%',
+                  height: 45,
+                  // backgroundColor: 'red',
                 }}
-                source={require('../Assets/Kandora/kandora-two.jpg')}
-              />
-              <Text
-                style={{
-                  color: 'black',
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                  margin: 10,
-                }}>
-                MajesticThreads
-              </Text>
-            </View>
-            <View
-              style={{
-                width: 138,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderRadius: 8,
-                margin: 10,
-                height: 50,
-                backgroundColor: 'white',
-              }}>
-              <Image
-                style={{
-                  width: 40,
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  height: '100%',
-                }}
-                source={require('../Assets/Kandora/kandora-three.webp')}
-              />
-              <Text
-                style={{
-                  color: 'black',
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                  margin: 10,
-                }}>
-                RoyalAttire
-              </Text>
-            </View>
-            <View
-              style={{
-                width: 138,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                borderRadius: 8,
-                margin: 10,
-                height: 50,
-                backgroundColor: 'white',
-              }}>
-              <Image
-                style={{
-                  width: 40,
-                  borderTopLeftRadius: 8,
-                  borderBottomLeftRadius: 8,
-                  height: '100%',
-                }}
-                source={require('../Assets/Kandora/kandora-four.jpg')}
-              />
-              <Text
-                style={{
-                  color: 'black',
-                  fontSize: 12,
-                  fontWeight: 'bold',
-                  margin: 10,
-                }}>
-                LuxeLooms
-              </Text>
-            </View>
+                onPress={() => navigation.navigate('Shop')}>
+                <View
+                  style={{
+                    width: '100%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderRadius: 4,
+
+                    height: '100%',
+                    backgroundColor: 'white',
+                  }}>
+                  <Image
+                    style={{
+                      width: 40,
+                      borderTopLeftRadius: 8,
+                      borderBottomLeftRadius: 8,
+                      height: '100%',
+                    }}
+                    source={{uri: `${baseUrl}${category.image}`}}
+                  />
+                  <Text
+                    style={{
+                      color: 'black',
+                      fontSize: 14,
+                      fontWeight: '600',
+                      marginRight: 20,
+                      marginLeft: 20,
+                      letterSpacing:5
+                    }}>
+                    {category.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
 
-        {/* <View
-          style={{
-            width: '100%',
-            height: 70,
-            // backgroundColor: 'white',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: 17,
-          }}>
-          <Text style={{fontSize: 18, color: 'black', fontWeight: '600'}}>
-            Favourite Orders
-          </Text>
-        </View> */}
-
-        {/* <View
-          style={{
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-            flexDirection: 'row',
-            height: 180,
-            //            backgroundColor: 'red',
-          }}>
-          <View style={styles.card}>
-            <Carousel
-              style={styles.caro}
-              layout={'stack'}
-              layoutCardOffset={12}
-              data={all_products.slice(10, 20)}
-              sliderWidth={200}
-              itemWidth={250}
-              renderItem={CarouselItem}
-              loop={true}
-            />
-          </View>
-
-          <View style={styles.card}>
-            <Carousel
-              style={styles.caro}
-              layout={'stack'}
-              layoutCardOffset={12}
-              data={all_products.slice(0, 10)}
-              sliderWidth={250}
-              itemWidth={250}
-              renderItem={CarouselItem}
-              loop={true}
-            />
-          </View>
-        </View> */}
-
+    
         <HomeDatas
           sliderValue={sliderValue}
           selectedProduct={selectedProduct}
