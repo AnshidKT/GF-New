@@ -492,7 +492,7 @@ const Home = ({navigation}) => {
           <Carousel
             data={advertisements}
             renderItem={renderItem}
-            sliderWidth={Dimensions.get('window').width}
+            sliderWidth={Dimensions.get('window').width }
             itemWidth={Dimensions.get('window').width * 1}
             autoplay
             autoplayInterval={4000}
