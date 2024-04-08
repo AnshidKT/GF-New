@@ -85,7 +85,7 @@ const App = () => {
             <CartProvider>
               <Stack.Navigator
                 screenOptions={{headerShown: false}}
-                initialRouteName="Demo">
+                >
                 {authenticated ? (
                   <>
                     <Stack.Screen name="Index" component={Index} />

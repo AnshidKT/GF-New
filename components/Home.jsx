@@ -17,6 +17,7 @@ import Profile from './Profile';
 import Carousel from 'react-native-snap-carousel';
 import Footer from './Footer';
 import {useBaseUrl} from './BaseUrlContext';
+import Marquee from 'react-native-marquee';
 const Home = ({navigation}) => {
   const [isMenuVisible, setMenuVisible] = useState(false);
   const {baseUrl} = useBaseUrl();
@@ -37,6 +38,9 @@ const Home = ({navigation}) => {
       })
       .catch(error => console.error('Error fetching categories:', error));
   }, []);
+
+
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -486,13 +490,11 @@ const Home = ({navigation}) => {
           </View>
         )}
 
-  
-
-        <View style={{flex: 1,marginTop:10}}>
+        <View style={{flex: 1, marginTop: 10}}>
           <Carousel
             data={advertisements}
             renderItem={renderItem}
-            sliderWidth={Dimensions.get('window').width }
+            sliderWidth={Dimensions.get('window').width}
             itemWidth={Dimensions.get('window').width * 1}
             autoplay
             autoplayInterval={4000}
@@ -500,12 +502,12 @@ const Home = ({navigation}) => {
           />
         </View>
 
-        <ScrollView
+        {/* <ScrollView
           horizontal
           style={{
             width: '100%',
             height: 80,
-            marginTop:10
+            marginTop: 20,
             //  backgroundColor: 'gray'
           }}>
           <View
@@ -553,7 +555,7 @@ const Home = ({navigation}) => {
                       fontWeight: '600',
                       marginRight: 20,
                       marginLeft: 20,
-                      letterSpacing:5
+                      letterSpacing: 5,
                     }}>
                     {category.name}
                   </Text>
@@ -561,9 +563,85 @@ const Home = ({navigation}) => {
               </TouchableOpacity>
             ))}
           </View>
+        </ScrollView> */}
+
+        <ScrollView
+          horizontal
+          style={{
+            width: '100%',
+            height: 80,
+            marginTop: 20,
+            //  backgroundColor: 'gray'
+          }}>
+          <View
+            style={{
+              width: '100%',
+              padding: 10,
+              height: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexDirection: 'row',
+            }}>
+            {categories.map(category => (
+              <TouchableOpacity
+                style={{
+                  width: 138,
+                  margin: 10,
+                  height: 45,
+                  // backgroundColor: 'red',
+                }}
+                onPress={() => navigation.navigate('Shop')}>
+                <View
+                  style={{
+                    width: '100%',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderRadius: 4,
+
+                    height: '100%',
+                    backgroundColor: 'white',
+                  }}>
+                  <Image
+                    style={{
+                      width: '100%',
+                      borderTopLeftRadius: 8,
+                      borderBottomLeftRadius: 8,
+                      height: '100%',
+                      objectFit: 'fill',
+                      position: 'relative',
+                    }}
+                    source={{uri: `${baseUrl}${category.image}`}}
+                  />
+
+                  <View
+                    style={{
+                      width: '100%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      height: '100%',
+                      position: 'absolute',
+                      // backgroundColor: 'rgba(0, 0, 0, 0.116)',
+                      borderRadius: 5,
+                    }}>
+                    {/* <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 14,
+                        fontWeight: '800',
+                        marginRight: 20,
+                        marginLeft: 20,
+                        letterSpacing: 5,
+                      }}>
+                      {category.name}
+                    </Text> */}
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         </ScrollView>
 
-    
         <HomeDatas
           sliderValue={sliderValue}
           selectedProduct={selectedProduct}
